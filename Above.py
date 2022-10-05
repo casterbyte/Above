@@ -56,7 +56,7 @@ def detect_cdp(interface, timeout):
         print (Fore.LIGHTCYAN_EX + Style.BRIGHT + "Impact: Information Gathering, DoS Attack via CDP Flooding")
         print (Fore.LIGHTMAGENTA_EX + Style.BRIGHT + "Tools: Yersinia, Wireshark")
         cdphostname = cdp_frame[0][CDPMsgDeviceID].val
-        print (Fore.LIGHTYELLOW_EX + Style.BRIGHT + + "Hostname is: " + Fore.BLUE + Style.BRIGHT + str(cdphostname.decode()))
+        print (Fore.LIGHTYELLOW_EX + Style.BRIGHT + "Hostname is: " + Fore.BLUE + Style.BRIGHT + str(cdphostname.decode()))
         cdphardwareversion = cdp_frame[0][CDPMsgSoftwareVersion].val
         print (Fore.LIGHTYELLOW_EX + Style.BRIGHT + "Target Version: " + Fore.BLUE + Style.BRIGHT + str(cdphardwareversion.decode()))
         cdphardwareplatform = cdp_frame[0][CDPMsgPlatform].val
@@ -66,6 +66,8 @@ def detect_cdp(interface, timeout):
         if cdp_frame[0].haslayer(CDPAddrRecordIPv4):
             cdpaddr = cdp_frame[0][CDPAddrRecordIPv4].addr  
             print (Fore.LIGHTYELLOW_EX + Style.BRIGHT + "Target IP Address: " + Fore.BLUE + Style.BRIGHT + cdpaddr)
+    if snapcode == 0x2004:
+        print (Fore.RED  + "Detected DTP. Skipping... Run the script again!")
             
 detect_cdp(args.interface, args.timeout)
 
@@ -85,10 +87,29 @@ def detect_lldp(interface, timeout):
         lldp_description = lldp_frame[0][LLDPDUSystemDescription].description
         print (Fore.YELLOW + Style.BRIGHT + "Your Port ID : " + Fore.BLUE + Style.BRIGHT + str(lldp_port_id.decode()))
         print (Fore.YELLOW + Style.BRIGHT + "Target Hostname : " + Fore.BLUE + Style.BRIGHT + str(lldp_system_name.decode()))
-    print (Fore.BLUE + Style.BRIGHT + "Target OS Version : " + Fore.BLUE + Style.BRIGHT + str(lldp_description.decode()))
+        print (Fore.YELLOW + Style.BRIGHT + "Target OS Version : " + Fore.BLUE + Style.BRIGHT + str(lldp_description.decode()))
 
 
 detect_lldp(args.interface, args.timeout)
+
+# DTP Scanning
+def detect_dtp(interface, timeout):
+    print (Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the DTP protocol...")
+    dtp_frame = sniff(filter="ether dst 01:00:0c:cc:cc:cc", count=1, timeout=args.timeout, iface=args.interface)
+    if not dtp_frame:
+        print (Fore.RED + Style.BRIGHT + "Error. DTP isn't detected.")
+        return 0
+    dtp_snapcode = dtp_frame[0][SNAP].code
+    if dtp_snapcode == 0x2004:
+        dtp_neighbor = dtp_frame[0][DTPNeighbor].neighbor
+        print (Fore.LIGHTYELLOW_EX + Style.BRIGHT + "Info: Detected vulnerable DTP")
+        print (Fore.CYAN + Style.BRIGHT + "Impact: VLAN Segmenation Bypassing")
+        print (Fore.MAGENTA + Style.BRIGHT + "Tools: Yersinia, Scapy")
+        print (Fore.YELLOW + Style.BRIGHT + "DTP Neighbor is : " + str(dtp_neighbor))
+    if dtp_snapcode == 0x2000:
+        print (Fore.RED  + "Detected CDP. Skipping... Run the script again!")
+
+detect_dtp(args.interface, args.timeout)
 
 #OSPF Scanning
 def detect_ospf(interface, timeout):
@@ -120,11 +141,11 @@ def detect_ospf(interface, timeout):
         print(Fore.YELLOW + Style.BRIGHT + "Plaintext Password: " + Fore.BLUE + Style.BRIGHT + string)
     # Crypt Auth (MD5)
     if authtype == 0x02:
-        print (Fore.GREEN + Style.BRIGHT + "MD5 Auth is detected. Bruteforce it.")
-        print (Fore.GREEN + Style.BRIGHT + "Tools: Ettercap, John the Ripper")
-        print("OSPF Key ID is: " + str(ospfkeyid))
-        print("Crypt data length: " + str(authdatalength))
-        print("Crypt Auth Sequence Number: " + str(authseq))
+        print (Fore.YELLOW + Style.BRIGHT + "MD5 Auth is detected. Bruteforce it.")
+        print (Fore.MAGENTA + Style.BRIGHT + "Tools: Ettercap, John the Ripper")
+        print(Fore.YELLOW + Style.BRIGHT + "OSPF Key ID is: " + str(ospfkeyid))
+        print(Fore.YELLOW + Style.BRIGHT + "Crypt data length: " + str(authdatalength))
+        print(Fore.YELLOW + Style.BRIGHT + "Crypt Auth Sequence Number: " + str(authseq))
 
 
 detect_ospf(args.interface, args.timeout)
@@ -132,21 +153,21 @@ detect_ospf(args.interface, args.timeout)
 
 # EIGRP Scanning
 def detect_eigrp(interface, timeout):
-    print (Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the EIGRP protocol... Here is a little information about the autonomous system")
+    print (Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the EIGRP protocol...")
     eigrppacket = sniff(filter="ip dst 224.0.0.10", count=1, timeout=args.timeout, iface=args.interface)
     if not eigrppacket:
         print (Fore.RED + Style.BRIGHT + "Error. EIGRP isn't detected.")
         return 0
     else:
-        print (Fore.LIGHTYELLOW_EX + Style.BRIGHT + "Info: Detected EIGRP")
+        print (Fore.LIGHTYELLOW_EX + Style.BRIGHT + "Info: Detected EIGRP. Here is a little information about the autonomous system")
         print (Fore.CYAN + Style.BRIGHT + "Impact: Network Intelligence, MITM, DoS, Blackhole.")
         print (Fore.MAGENTA + Style.BRIGHT + "Tools: Loki, Scapy, FRRouting")
     asnumber = eigrppacket[0][EIGRP].asn
     if eigrppacket[0].haslayer("EIGRPAuthData"):
         print ("There is EIGRP Authentication")
     eigrpneighborip = eigrppacket[0][IP].src
-    print("Your AS Number is " + str(asnumber))
-    print("Your EIGRP Neighbor is " + str(eigrpneighborip))
+    print(Fore.YELLOW + Style.BRIGHT + "Your AS Number is " + Fore.BLUE + Style.BRIGHT + str(asnumber))
+    print(Fore.YELLOW + Style.BRIGHT + "Your EIGRP Neighbor is " + Fore.BLUE + Style.BRIGHT + str(eigrpneighborip))
 
 
 detect_eigrp(args.interface, args.timeout)
@@ -164,17 +185,15 @@ def detect_vrrp(interface, timeout):
         vrrppriority = vrrppacket[0][VRRP].priority
         vrrpauthtype = vrrppacket[0][VRRP].authtype
         ipsrcpacket = vrrppacket[0][IP].src
-        print (Fore.YELLOW + Style.BRIGHT + "VRRP Sender IP: " + str(ipsrcpacket))
         if vrrpauthtype == 0:
             print (Fore.YELLOW + Style.BRIGHT + "VRRP Authentication is not used")
         if vrrpauthtype == 254:
             print (Fore.YELLOW + Style.BRIGHT + "VRRP MD5 Auth is used")
-
         if vrrppriority <= 255:
             print (Fore.LIGHTYELLOW_EX + Style.BRIGHT + "Info: Detected vulnerable VRRP")
             print (Fore.CYAN + Style.BRIGHT + "Impact: MITM")
             print (Fore.MAGENTA + Style.BRIGHT + "Tools: Scapy, Loki")
-
+            print (Fore.YELLOW + Style.BRIGHT + "VRRP Sender IP: " + str(ipsrcpacket))
 
 detect_vrrp(args.interface, args.timeout)
 
@@ -201,28 +220,6 @@ detect_stp(args.interface, args.timeout)
 
     
 
-# DTP Scanning
-def detect_dtp(interface, timeout):
-    print (Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the DTP protocol...")
-    dtp_frame = sniff(filter="ether dst 01:00:0c:cc:cc:cc", count=1, timeout=args.timeout, iface=args.interface)
-    if not dtp_frame:
-        print (Fore.RED + Style.BRIGHT + "Error. DTP isn't detected.")
-        return 0
-    dtp_snapcode = dtp_frame[0][SNAP].code
-    if dtp_snapcode == 0x2004:
-        dtp_type = dtp_frame[0][DTPType].dtptype
-        dtp_status = dtp_frame[0][DTPStatus].status
-        dtp_neighbor = dtp_frame[0][DTPNeighbor].neighbor
-        print (Fore.LIGHTYELLOW_EX + Style.BRIGHT + "Info: Detected vulnerable DTP")
-        print (Fore.CYAN + Style.BRIGHT + "Impact: VLAN Segmenation Bypassing")
-        print (Fore.MAGENTA + Style.BRIGHT + "Tools: Yersinia, Scapy")
-        print (Fore.YELLOW + Style.BRIGHT + "DTP Type is : " + str(dtp_type))
-        print (Fore.YELLOW + Style.BRIGHT + "DTP Status is : " + str(dtp_status))
-        print (Fore.YELLOW + Style.BRIGHT + "DTP Neighbor is : " + str(dtp_neighbor))
-
-
-detect_dtp(args.interface, args.timeout)
-
 #LLMNR Scanning
 def detect_llmnr(interface, timeout):
     print (Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the LLMNR protocol...\n")
@@ -232,8 +229,8 @@ def detect_llmnr(interface, timeout):
         return 0
     else:
         print (Fore.YELLOW + Style.BRIGHT + "Info: Detected LLMNR.")
-        print (Fore.YELLOW + Style.BRIGHT + "Impact: Possible LLMNR Poisoning Attack")
-        print (Fore.YELLOW + Style.BRIGHT + "Tools: Responder")
+        print (Fore.CYAN + Style.BRIGHT + "Impact: Possible LLMNR Poisoning Attack (Stealing NetNTLM hashes)")
+        print (Fore.MAGENTA + Style.BRIGHT + "Tools: Responder")
         llmnr_sender_ip = llmnr_packet[0][IP].src
         print (Fore.YELLOW + Style.BRIGHT + "LLMNR Sender IP: " + str(llmnr_sender_ip))
 
@@ -249,8 +246,8 @@ def detect_nbns(interface, timeout):
         return 0
     else:
         print (Fore.YELLOW + Style.BRIGHT + "Info: Detected NBT-NS protocol.")
-        print (Fore.YELLOW + Style.BRIGHT + "Impact: Possible NBT-NS Poisoning Attack")
-        print (Fore.YELLOW + Style.BRIGHT + "Tools: Responder")
+        print (Fore.CYAN + Style.BRIGHT + "Impact: Possible NBT-NS Poisoning Attack (Stealing NetNTLM hashes)")
+        print (Fore.MAGENTA + Style.BRIGHT + "Tools: Responder")
         nbns_sender_ip = nbns_packet[0][IP].src
         print (Fore.YELLOW + Style.BRIGHT + "NBT-NS Sender IP: " + str(nbns_sender_ip))
 
