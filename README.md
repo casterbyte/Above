@@ -1,6 +1,27 @@
 # Above
 Sniff-based Network Vulnerability Scanner
 
+```
+python3 Above.py --help
+
+ █████╗ ██████╗  ██████╗ ██╗   ██╗███████╗
+██╔══██╗██╔══██╗██╔═══██╗██║   ██║██╔════╝
+███████║██████╔╝██║   ██║██║   ██║█████╗
+██╔══██║██╔══██╗██║   ██║╚██╗ ██╔╝██╔══╝
+██║  ██║██████╔╝╚██████╔╝ ╚████╔╝ ███████╗
+╚═╝  ╚═╝╚═════╝  ╚═════╝   ╚═══╝  ╚══════╝
+
+Sniff-based Network Vulnerability Scanner
+Author: Magama Bazarov, @in9uz, <in9uz@protonmail.com>
+
+usage: Above.py [-h] --interface INTERFACE --timeout TIMEOUT
+
+options:
+  -h, --help            show this help message and exit
+  --interface INTERFACE
+  --timeout TIMEOUT
+  ```
+
 This script is based on a sniff of network traffic. At the moment it supports the following protocols:
 
 ```
@@ -30,7 +51,7 @@ sudo python3 Above.py --interface eth0 --timeout 60
 ![](example.png)
 After the scanner finishes sniffing a certain protocol, it will display some information about the protocol itself, the impact of the attack and which tool for the attack can be used. Over time, based on your issues, this parameter will improve.
 
-## Preparing
+## Preparing before the sniff
 ```
 sudo pip3 install -r requirements.txt
 ```
