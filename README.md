@@ -25,6 +25,8 @@ options:
 ## Known Issues
 Calling functions by arguments.
 
+## Mechanics
+
 This script is based on a sniff of network traffic. At the moment it supports the following protocols:
 
 ```
