@@ -40,6 +40,7 @@ In Progress:
 HSRPv1/v2 (Hot Standby Redundancy Protocol)
 DHCPv6
 ```
+THE SCANNER DOES NOT CREATE ANY NOISE ON THE NETWORK.
 
 As input, the scanner takes two arguments:
   - network interface (--interface)
