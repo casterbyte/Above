@@ -23,3 +23,7 @@ DHCPv6
 As input, the scanner takes two arguments:
 - network interface (--interface)
 - Timeout (the amount of time that a packet will be waiting for, according to the filters inside the scanner) (--timeout)
+Example:
+```
+sudo python3 Above.py --interface eth0 --timeout 500
+```
