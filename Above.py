@@ -187,6 +187,8 @@ def detect_vrrp(interface, timeout):
         ipsrcpacket = vrrppacket[0][IP].src
         if vrrpauthtype == 0:
             print (Fore.YELLOW + Style.BRIGHT + "VRRP Authentication is not used")
+        if vrrpauthtype == 0x1:
+            print (Fore.YELLOW + Style.BRIGHT + "Plaintext VRRP Authentication is used. Check this on Wireshark")
         if vrrpauthtype == 254:
             print (Fore.YELLOW + Style.BRIGHT + "VRRP MD5 Auth is used")
         if vrrppriority <= 255:
