@@ -22,7 +22,7 @@ options:
   --timeout TIMEOUT
   ```
   
-## Known Issues
+## TODO
 Calling functions by arguments.
 
 ## Mechanics
