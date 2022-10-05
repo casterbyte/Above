@@ -229,7 +229,7 @@ def detect_llmnr(interface, timeout):
         return 0
     else:
         print (Fore.YELLOW + Style.BRIGHT + "Info: Detected LLMNR.")
-        print (Fore.CYAN + Style.BRIGHT + "Impact: Possible LLMNR Poisoning Attack (Stealing NetNTLM hashes)")
+        print (Fore.CYAN + Style.BRIGHT + "Impact: LLMNR Poisoning Attack (Stealing NetNTLM hashes)")
         print (Fore.MAGENTA + Style.BRIGHT + "Tools: Responder")
         llmnr_sender_ip = llmnr_packet[0][IP].src
         print (Fore.YELLOW + Style.BRIGHT + "LLMNR Sender IP: " + str(llmnr_sender_ip))
@@ -246,7 +246,7 @@ def detect_nbns(interface, timeout):
         return 0
     else:
         print (Fore.YELLOW + Style.BRIGHT + "Info: Detected NBT-NS protocol.")
-        print (Fore.CYAN + Style.BRIGHT + "Impact: Possible NBT-NS Poisoning Attack (Stealing NetNTLM hashes)")
+        print (Fore.CYAN + Style.BRIGHT + "Impact: NBT-NS Poisoning Attack (Stealing NetNTLM hashes)")
         print (Fore.MAGENTA + Style.BRIGHT + "Tools: Responder")
         nbns_sender_ip = nbns_packet[0][IP].src
         print (Fore.YELLOW + Style.BRIGHT + "NBT-NS Sender IP: " + str(nbns_sender_ip))
