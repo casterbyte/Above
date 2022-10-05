@@ -21,9 +21,10 @@ DHCPv6
 ```
 
 As input, the scanner takes two arguments:
-- network interface (--interface)
-- Timeout (the amount of time that a packet will be waiting for, according to the filters inside the scanner) (--timeout)
+  - network interface (--interface)
+  - Timeout (the amount of time that a packet will be waiting for, according to the filters inside the scanner) (--timeout)
 Example:
 ```
 sudo python3 Above.py --interface eth0 --timeout 500
 ```
+After the scanner finishes sniffing a certain protocol, it will display some information about the protocol itself, the impact of the attack and which tool for the attack can be used. Over time, based on your issues, this parameter will improve.
