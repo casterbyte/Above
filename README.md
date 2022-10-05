@@ -21,6 +21,9 @@ options:
   --interface INTERFACE
   --timeout TIMEOUT
   ```
+  
+## Known Issues
+Calling functions by arguments.
 
 This script is based on a sniff of network traffic. At the moment it supports the following protocols:
 
@@ -60,4 +63,5 @@ sudo pip3 install -r requirements.txt
 ```
 sudo ip link set ethX promisc on
 ```
+
 
