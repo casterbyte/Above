@@ -231,7 +231,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--interface", dest="interface", type=str, required=True, help="Specify your interface")
-    parser.add_argument("--timeout", dest="timeout", type=int, required=True, help="Specify the timeout")
+    parser.add_argument("--timeout", dest="timeout", type=int, required=True, help="Specify the timeout. How much time to sniff")
     parser.add_argument("--cdp", dest="cdp",  action='store_true', help="CDP Scan")
     parser.add_argument("--dtp", dest="dtp",  action='store_true', help="DTP Scan")
     parser.add_argument("--lldp", dest="lldp", action='store_true', help="LLDP Scan")
