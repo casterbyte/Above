@@ -54,9 +54,11 @@ DHCPv6
 ```
 THE SCANNER DOES NOT CREATE ANY NOISE ON THE NETWORK.
 
-As input, the scanner takes two arguments:
+The scanner waits for the following arguments as input:
   - network interface (--interface)
-  - Timeout (the amount of time that a packet will be waiting for, according to the filters inside the scanner) (--timeout)
+  - timeout (the amount of time that a packet will be waiting for, according to the filters inside the scanner) (--timeout)
+  - target protocol (--cdp --dtp --lldp --ospf --eigrp --vrrp --stp --llmnr --nbns)
+  
 Example (OSPF and VRRP protocol scan):
 ```
 sudo python3 Above.py --interface eth0 --timeout 60 --ospf --vrrp
