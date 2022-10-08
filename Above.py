@@ -244,18 +244,6 @@ if __name__ == '__main__':
     parser.add_argument("--fullscan", dest="fullscan", action='store_true', help="Scan all protocols")
     args = parser.parse_args()
 
-    if args.fullscan:
-         detect_cdp(args.interface, args.timeout)
-         detect_dtp(args.interface, args.timeout)
-         detect_lldp(args.interface, args.timeout)
-         detect_ospf(args.interface, args.timeout)
-         detect_eigrp(args.interface, args.timeout)
-         detect_vrrp(args.interface, args.timeout)
-         detect_stp(args.interface, args.timeout)
-         detect_llmnr(args.interface, args.timeout)
-         detect_nbns(args.interface, args.timeout)
-         exit(0)
-
     if args.cdp:
         detect_cdp(args.interface, args.timeout)
          
@@ -289,3 +277,15 @@ if __name__ == '__main__':
 
     if args.nbns:
         detect_nbns(args.interface, args.timeout)
+
+    if args.fullscan:
+         detect_cdp(args.interface, args.timeout)
+         detect_dtp(args.interface, args.timeout)
+         detect_lldp(args.interface, args.timeout)
+         detect_ospf(args.interface, args.timeout)
+         detect_eigrp(args.interface, args.timeout)
+         detect_vrrp(args.interface, args.timeout)
+         detect_stp(args.interface, args.timeout)
+         detect_llmnr(args.interface, args.timeout)
+         detect_nbns(args.interface, args.timeout)
+         exit(0)
