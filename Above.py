@@ -199,7 +199,7 @@ def detect_stp(interface, timeout):
 
 # LLMNR Scanning
 def detect_llmnr(interface, timeout):
-    print(Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the LLMNR protocol...\n")
+    print(Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the LLMNR protocol...")
     llmnr_packet = sniff(filter="ip dst 224.0.0.252", count=1, timeout=args.timeout, iface=args.interface)
     if not llmnr_packet:
         print(Fore.RED + Style.BRIGHT + "Error. LLMNR isn't detected.")
@@ -214,7 +214,7 @@ def detect_llmnr(interface, timeout):
 
 # NBT-NS Scanning
 def detect_nbns(interface, timeout):
-    print(Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the NBT-NS protocol...\n")
+    print(Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the NBT-NS protocol...")
     nbns_packet = sniff(filter="udp and port 137", count=1, timeout=args.timeout, iface=args.interface)
     if not nbns_packet:
         print(Fore.RED + Style.BRIGHT + "Error. NBT-NS isn't detected.")
@@ -244,48 +244,31 @@ if __name__ == '__main__':
     parser.add_argument("--fullscan", dest="fullscan", action='store_true', help="Scan all protocols")
     args = parser.parse_args()
 
-    if args.cdp:
-        detect_cdp(args.interface, args.timeout)
-         
+if args.cdp or args.fullscan:
+    detect_cdp(args.interface, args.timeout)
 
-    if args.dtp:
-        detect_dtp(args.interface, args.timeout)
-        
+if args.dtp or args.fullscan:
+    detect_dtp(args.interface, args.timeout)
+
+if args.lldp or args.fullscan:
+    detect_lldp(args.interface, args.timeout)
+
+if args.ospf or args.fullscan:
+    detect_ospf(args.interface, args.timeout)
+
+if args.eigrp or args.fullscan:
+    detect_eigrp(args.interface, args.timeout)
+
+if args.vrrp or args.fullscan:
+    detect_vrrp(args.interface, args.timeout)
+
+if args.stp or args.fullscan:
+    detect_stp(args.interface, args.timeout)
+
+if args.llmnr or args.fullscan:
+    detect_llmnr(args.interface, args.timeout)
+
+if args.nbns or args.fullscan:
+    detect_nbns(args.interface, args.timeout)
+
     
-    if args.lldp:
-        detect_lldp(args.interface, args.timeout)
-        
-
-    if args.ospf:
-        detect_ospf(args.interface, args.timeout)
-        
-
-    if args.eigrp:
-        detect_eigrp(args.interface, args.timeout)
-        
-
-    if args.vrrp:
-        detect_vrrp(args.interface, args.timeout)
-         
-
-    if args.stp:
-        detect_stp(args.interface, args.timeout)
-        
-
-    if args.llmnr:
-        detect_llmnr(args.interface, args.timeout)
-
-    if args.nbns:
-        detect_nbns(args.interface, args.timeout)
-
-    if args.fullscan:
-         detect_cdp(args.interface, args.timeout)
-         detect_dtp(args.interface, args.timeout)
-         detect_lldp(args.interface, args.timeout)
-         detect_ospf(args.interface, args.timeout)
-         detect_eigrp(args.interface, args.timeout)
-         detect_vrrp(args.interface, args.timeout)
-         detect_stp(args.interface, args.timeout)
-         detect_llmnr(args.interface, args.timeout)
-         detect_nbns(args.interface, args.timeout)
-         exit(0)
