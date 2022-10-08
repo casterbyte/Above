@@ -4,27 +4,34 @@ Sniff-based Network Vulnerability Scanner
 ```
 python3 Above.py --help
 
- █████╗ ██████╗  ██████╗ ██╗   ██╗███████╗
-██╔══██╗██╔══██╗██╔═══██╗██║   ██║██╔════╝
-███████║██████╔╝██║   ██║██║   ██║█████╗
-██╔══██║██╔══██╗██║   ██║╚██╗ ██╔╝██╔══╝
-██║  ██║██████╔╝╚██████╔╝ ╚████╔╝ ███████╗
-╚═╝  ╚═╝╚═════╝  ╚═════╝   ╚═══╝  ╚══════╝
+ █████╗ ██████╗  ██████╗ ██╗   ██╗███████╗    
+██╔══██╗██╔══██╗██╔═══██╗██║   ██║██╔════╝    
+███████║██████╔╝██║   ██║██║   ██║█████╗      
+██╔══██║██╔══██╗██║   ██║╚██╗ ██╔╝██╔══╝      
+██║  ██║██████╔╝╚██████╔╝ ╚████╔╝ ███████╗    
+╚═╝  ╚═╝╚═════╝  ╚═════╝   ╚═══╝  ╚══════╝  
 
 Sniff-based Network Vulnerability Scanner
 Author: Magama Bazarov, @in9uz, <in9uz@protonmail.com>
 
-usage: Above.py [-h] --interface INTERFACE --timeout TIMEOUT
+usage: Above.py [-h] --interface INTERFACE --timeout TIMEOUT [--cdp] [--dtp] [--lldp] [--ospf] [--eigrp] [--vrrp] [--stp] [--llmnr] [--nbns] [--fullscan]
 
 options:
   -h, --help            show this help message and exit
   --interface INTERFACE
-  --timeout TIMEOUT
+                        Specify your interface
+  --timeout TIMEOUT     Specify the timeout. How much time to sniff
+  --cdp                 CDP Scan
+  --dtp                 DTP Scan
+  --lldp                LLDP Scan
+  --ospf                OSPF Scan
+  --eigrp               EIGRP Scan
+  --vrrp                VRRP Scan
+  --stp                 STP Scan
+  --llmnr               LLMNR Scan
+  --nbns                Scan NetBIOS Name Service
+  --fullscan            Scan all protocols
   ```
-  
-## TODO
-Calling functions by arguments.
-
 ## Mechanics
 
 This script is based on a sniff of network traffic. At the moment it supports the following protocols:
