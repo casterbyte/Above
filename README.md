@@ -25,8 +25,7 @@ Sniff-based Network Vulnerability Scanner
 Author: Magama Bazarov, @in9uz, <in9uz@protonmail.com>
 
 To skip scanning some protocol during a full scan - hit CTRL + C
-
-usage: Above.py [-h] --interface INTERFACE --timeout TIMEOUT [--cdp] [--dtp] [--lldp] [--ospf] [--eigrp] [--vrrp] [--hsrpv1] [--hsrpv2] [--stp] [--llmnr] [--nbns] [--dhcpv6] [--fullscan]
+usage: Above.py [-h] --interface INTERFACE --timeout TIMEOUT [--cdp] [--dtp] [--lldp] [--ospf] [--eigrp] [--vrrp] [--hsrpv1] [--stp] [--llmnr] [--nbns] [--dhcpv6] [--fullscan]
 
 options:
   -h, --help            show this help message and exit
@@ -40,13 +39,11 @@ options:
   --eigrp               EIGRP Scan
   --vrrp                VRRP Scan
   --hsrpv1              HSRPv1 Scan
-  --hsrpv2              HSRPv2 Scan
   --stp                 STP Scan
   --llmnr               LLMNR Scan
   --nbns                NBNS Scan
   --dhcpv6              DHCPv6 Scan
   --fullscan            Scan all protocols
-
   ```
 ## Mechanics
 
@@ -70,7 +67,7 @@ DHCPv6 (Dynamic Host Configuration Protocol v6)
 The scanner waits for the following arguments as input:
   - network interface (--interface)
   - timeout (the amount of time that a packet will be waiting for, according to the filters inside the scanner) (--timeout)
-  - target protocol (--cdp --dtp --lldp --ospf --eigrp --vrrp --stp --llmnr --nbns)
+  - target protocol (--cdp --dtp --lldp --ospf --eigrp --vrrp --hsrpv1 --stp --llmnr --nbns --dhcpv6 --fullscan)
   
 Example (OSPF and VRRP protocol scan):
 ```
