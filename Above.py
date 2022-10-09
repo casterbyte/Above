@@ -185,7 +185,7 @@ def detect_hsrpv1(interface, timeout):
         print (Fore.RED + Style.BRIGHT + "[!] Error. HSRPv1 isn't detected.")
         return 0
     if hsrpv1_packet[0][HSRP].state == 16 and hsrpv1_packet[0][HSRP].priority < 255:
-            print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
+            print (Fore.YELLOW + Style.BRIGHT + "[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
             hsrpv1senderip = hsrpv1_packet[0][IP].src
             hsrpv1sendermac = hsrpv1_packet[0][Ether].src
             hsrpv1priority = hsrpv1_packet[0][HSRP].priority
@@ -202,7 +202,7 @@ def detect_hsrpv1(interface, timeout):
                 print ("[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
             return 0 
     if hsrpv1_packet[1][HSRP].state == 16 and hsrpv1_packet[1][HSRP].priority < 255:
-            print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
+            print (Fore.YELLOW + Style.BRIGHT + "[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
             hsrpv1senderip = hsrpv1_packet[1][IP].src
             hsrpv1sendermac = hsrpv1_packet[1][Ether].src
             hsrpv1priority = hsrpv1_packet[1][HSRP].priority
@@ -219,7 +219,7 @@ def detect_hsrpv1(interface, timeout):
                 print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
             return 0 
     if hsrpv1_packet[2][HSRP].state == 16 and hsrpv1_packet[2][HSRP].priority < 255:
-            print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
+            print (Fore.YELLOW + Style.BRIGHT + "[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
             hsrpv1senderip = hsrpv1_packet[2][IP].src
             hsrpv1sendermac = hsrpv1_packet[2][Ether].src
             hsrpv1priority = hsrpv1_packet[2][HSRP].priority
@@ -236,7 +236,7 @@ def detect_hsrpv1(interface, timeout):
                 print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
             return 0 
     if  hsrpv1_packet[3][HSRP].state == 16 and hsrpv1_packet[3][HSRP].priority < 255:
-            print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
+            print (Fore.YELLOW + Style.BRIGHT + "[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
             hsrpv1senderip = hsrpv1_packet[3][IP].src
             hsrpv1sendermac = hsrpv1_packet[3][Ether].src
             hsrpv1priority = hsrpv1_packet[3][HSRP].priority
@@ -253,7 +253,7 @@ def detect_hsrpv1(interface, timeout):
                 print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
             return 0 
     if  hsrpv1_packet[4][HSRP].state == 16 and hsrpv1_packet[4][HSRP].priority < 255:
-            print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
+            print (Fore.YELLOW + Style.BRIGHT + "[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
             hsrpv1senderip = hsrpv1_packet[4][IP].src
             hsrpv1sendermac = hsrpv1_packet[4][Ether].src
             hsrpv1priority = hsrpv1_packet[4][HSRP].priority
