@@ -3,18 +3,30 @@ Sniff-based Network Vulnerability Scanner
 
 ```
 python3 Above.py --help
-
- █████╗ ██████╗  ██████╗ ██╗   ██╗███████╗    
-██╔══██╗██╔══██╗██╔═══██╗██║   ██║██╔════╝    
-███████║██████╔╝██║   ██║██║   ██║█████╗      
-██╔══██║██╔══██╗██║   ██║╚██╗ ██╔╝██╔══╝      
-██║  ██║██████╔╝╚██████╔╝ ╚████╔╝ ███████╗    
-╚═╝  ╚═╝╚═════╝  ╚═════╝   ╚═══╝  ╚══════╝  
+####################################################################################################
+####################################################################################################
+######P~~~!J5GB#####G~~~!YG#################B?!G##########5~~~75G#############5~~!5########G7~~Y####
+######Y  .^.  .?####P  :~..:!JPB###########5:  .?B########J  :^..:!YG#########Y    !P####B7.   ?####
+######Y  7&#G5JY####P. 7#BPJ~:.:!JP######G!  ?Y: :5#######Y  7#G57^..:!JP#####Y  ?J  7GBJ. 7J  ?####
+######Y  :J5G#&&####P. 7##&&&G?.  !B###BJ. ~P#&B7  !G#####Y  7##&&#P!   !B####Y  7&G! .. ^5&Y  ?####
+######Y  ..  .^J####P. 7&#GJ~..~JG####5^ :Y######P~ .JB###Y  ?&B57:.:!JG######Y  7###P~^Y###J  ?####
+######Y  !#G5J!J####P. ^7^.:75B#######7  !B&######?  ^G###Y  ^~. :75B#########Y  7##########J  ?####
+######Y  !##########P. :^. ^JG#########P^ .J####5^ .J#####Y  .~JG#############Y  7##########J  ?####
+######Y  !##########P. 7#GY!. :75B#######J. ^PG7  7G######Y  7&###############Y  7##########J  ?####
+######Y  !##########P. 7###&#P?. .!B######G7  . ^5########Y  7################Y  7##########J  ?####
+######Y  !##########P. 7###BP?~..~?B######&P:   J#########Y  7################Y  7##########J  ?####
+######Y  !##########P. !GJ~..^75B########B7  !?. ~P#######Y  7################Y  7##########J  ?####
+######Y  !##########P   .:!YG##########BJ. ^5#&G!  7G#####J  7################Y  !##########J  ?####
+######GYJP##########BYYYPB#############GJJYB#####5JJP#####GJJP################GJJP##########GYJP####
+########&##################################################&&###################&#############&#####
+####################################################################################################
 
 Sniff-based Network Vulnerability Scanner
 Author: Magama Bazarov, @in9uz, <in9uz@protonmail.com>
 
-usage: Above.py [-h] --interface INTERFACE --timeout TIMEOUT [--cdp] [--dtp] [--lldp] [--ospf] [--eigrp] [--vrrp] [--stp] [--llmnr] [--nbns] [--fullscan]
+To skip scanning some protocol during a full scan - hit CTRL + C
+usage: Above.py [-h] --interface INTERFACE --timeout TIMEOUT [--cdp] [--dtp] [--lldp] [--ospf] [--eigrp] [--vrrp] [--hsrpv1] [--hsrpv2] [--stp] [--llmnr] [--nbns]
+                [--fullscan] [--dhcpv6]
 
 options:
   -h, --help            show this help message and exit
@@ -27,10 +39,14 @@ options:
   --ospf                OSPF Scan
   --eigrp               EIGRP Scan
   --vrrp                VRRP Scan
+  --hsrpv1              HSRPv1 Scan
+  --hsrpv2              HSRPv2 Scan
   --stp                 STP Scan
   --llmnr               LLMNR Scan
   --nbns                Scan NetBIOS Name Service
   --fullscan            Scan all protocols
+  --dhcpv6              Scan DHCPv6 requests
+
   ```
 ## Mechanics
 
@@ -43,14 +59,11 @@ LLDP (Link Layer Discovery Protocol)
 OSPF (Open Shortest Path First)
 EIGRP (Enhanced Interior Gateway Routing Protocol)
 VRRP (Virtual Router Redundancy Protocol)
+HSRP (Host Standby Redundancy Protocol)
 STP (Spanning Tree Protocol)
 LLMNR (Link Local Multicast Name Resolution)
 NBT-NS (NetBIOS Name Service)
-```
-In Progress:
-```
-HSRPv1/v2 (Hot Standby Redundancy Protocol)
-DHCPv6
+DHCPv6 (Dynamic Host Configuration Protocol v6)
 ```
 **THE SCANNER DOES NOT CREATE ANY NOISE ON THE NETWORK**
 
@@ -70,8 +83,5 @@ After the scanner finishes sniffing a certain protocol, it will display some inf
 sudo pip3 install -r requirements.txt
 ```
 
-```
-sudo ip link set ethX promisc on
-```
 
 
