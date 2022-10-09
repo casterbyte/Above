@@ -25,6 +25,7 @@ Sniff-based Network Vulnerability Scanner
 Author: Magama Bazarov, @in9uz, <in9uz@protonmail.com>
 
 To skip scanning some protocol during a full scan - hit CTRL + C
+
 usage: Above.py [-h] --interface INTERFACE --timeout TIMEOUT [--cdp] [--dtp] [--lldp] [--ospf] [--eigrp] [--vrrp] [--hsrpv1] [--hsrpv2] [--stp] [--llmnr] [--nbns] [--dhcpv6] [--fullscan]
 
 options:
