@@ -464,9 +464,10 @@ if __name__ == '__main__':
     parser.add_argument("--hsrpv2", dest="hsrpv2", action='store_true', help="HSRPv2 Scan")
     parser.add_argument("--stp", dest="stp",  action='store_true', help="STP Scan")
     parser.add_argument("--llmnr", dest="llmnr",  action='store_true', help="LLMNR Scan")
-    parser.add_argument("--nbns", dest="nbns",  action='store_true', help="Scan NetBIOS Name Service")
+    parser.add_argument("--nbns", dest="nbns",  action='store_true', help="NBNS Scan")
+    parser.add_argument("--dhcpv6", dest="dhcpv6", action='store_true', help="DHCPv6 Scan")
     parser.add_argument("--fullscan", dest="fullscan", action='store_true', help="Scan all protocols")
-    parser.add_argument("--dhcpv6", dest="dhcpv6", action='store_true', help="Scan DHCPv6 requests")
+
     args = parser.parse_args()
 
 switch_to_promisc(args.interface)
