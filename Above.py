@@ -188,11 +188,13 @@ def detect_hsrpv1(interface, timeout):
             print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
             hsrpv1senderip = hsrpv1_packet[0][IP].src
             hsrpv1sendermac = hsrpv1_packet[0][Ether].src
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
+            hsrpv1priority = hsrpv1_packet[1][HSRP].priority
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender Value: " + Fore.BLUE + Style.BRIGHT + str(hsrpv1priority))         
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
             if hsrpv1_packet[0].haslayer(HSRPmd5):
-                print ("[!] HSRP MD5 Authentication is used. You can bruteforce it.")
-                print ("[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
+                print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP MD5 Authentication is used. You can bruteforce it.")
+                print (Fore.YELLOW + Style.BRIGHT + "[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
             if hsrpv1_packet[0][HSRP].auth:
                 print ("[!] Simple HSRP Authentication is used.")
                 hsrpv1_plaintext = hsrpv1_packet[0][HSRP].auth
@@ -203,145 +205,69 @@ def detect_hsrpv1(interface, timeout):
             print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
             hsrpv1senderip = hsrpv1_packet[1][IP].src
             hsrpv1sendermac = hsrpv1_packet[1][Ether].src
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
+            hsrpv1priority = hsrpv1_packet[1][HSRP].priority
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 ACTIVE Sender Value: " + Fore.BLUE + Style.BRIGHT + str(hsrpv1priority))    
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
             if hsrpv1_packet[1].haslayer(HSRPmd5):
-                print ("[!] HSRP MD5 Authentication is used. You can bruteforce it.")
-                print ("[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
+                print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP MD5 Authentication is used. You can bruteforce it.")
+                print (Fore.YELLOW + Style.BRIGHT + "[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
             if hsrpv1_packet[1][HSRP].auth:
-                print ("[!] Simple HSRP Authentication is used.")
+                print (Fore.YELLOW + Style.BRIGHT + "[!] Simple HSRP Authentication is used.")
                 hsrpv1_plaintext = hsrpv1_packet[1][HSRP].auth
                 simplehsrppass = hsrpv1_plaintext.decode("UTF-8")
-                print ("[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
+                print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
             return 0 
     if hsrpv1_packet[2][HSRP].state == 16 and hsrpv1_packet[2][HSRP].priority < 255:
             print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
             hsrpv1senderip = hsrpv1_packet[2][IP].src
             hsrpv1sendermac = hsrpv1_packet[2][Ether].src
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
+            hsrpv1priority = hsrpv1_packet[2][HSRP].priority
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 ACTIVE Sender Value: " + Fore.BLUE + Style.BRIGHT + str(hsrpv1priority))    
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
             if hsrpv1_packet[2].haslayer(HSRPmd5):
-                print ("[!] HSRP MD5 Authentication is used. You can bruteforce it.")
-                print ("[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
+                print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP MD5 Authentication is used. You can bruteforce it.")
+                print (Fore.YELLOW + Style.BRIGHT + "[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
             if hsrpv1_packet[2][HSRP].auth:
-                print ("[!] Simple HSRP Authentication is used.")
+                print (Fore.YELLOW + Style.BRIGHT + "[!] Simple HSRP Authentication is used.")
                 hsrpv1_plaintext = hsrpv1_packet[2][HSRP].auth
                 simplehsrppass = hsrpv1_plaintext.decode("UTF-8")
-                print ("[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
+                print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
             return 0 
     if  hsrpv1_packet[3][HSRP].state == 16 and hsrpv1_packet[3][HSRP].priority < 255:
             print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
             hsrpv1senderip = hsrpv1_packet[3][IP].src
             hsrpv1sendermac = hsrpv1_packet[3][Ether].src
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
+            hsrpv1priority = hsrpv1_packet[3][HSRP].priority
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 ACTIVE Sender Value: " + Fore.BLUE + Style.BRIGHT + str(hsrpv1priority))    
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
             if hsrpv1_packet[3].haslayer(HSRPmd5):
-                print ("[!] HSRP MD5 Authentication is used. You can bruteforce it.")
-                print ("[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
+                print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP MD5 Authentication is used. You can bruteforce it.")
+                print (Fore.YELLOW + Style.BRIGHT + "[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
             if hsrpv1_packet[3][HSRP].auth:
-                print ("[!] Simple HSRP Authentication is used.")
+                print (Fore.YELLOW + Style.BRIGHT + "[!] Simple HSRP Authentication is used.")
                 hsrpv1_plaintext = hsrpv1_packet[3][HSRP].auth
                 simplehsrppass = hsrpv1_plaintext.decode("UTF-8")
-                print ("[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
+                print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
             return 0 
     if  hsrpv1_packet[4][HSRP].state == 16 and hsrpv1_packet[4][HSRP].priority < 255:
             print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
             hsrpv1senderip = hsrpv1_packet[4][IP].src
             hsrpv1sendermac = hsrpv1_packet[4][Ether].src
+            hsrpv1priority = hsrpv1_packet[4][HSRP].priority
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 ACTIVE Sender Value: " + Fore.BLUE + Style.BRIGHT + str(hsrpv1priority))    
             print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
             print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
             if hsrpv1_packet[4].haslayer(HSRPmd5):
-                print ("[!] HSRP MD5 Authentication is used. You can bruteforce it.")
-                print ("[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
+                print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP MD5 Authentication is used. You can bruteforce it.")
+                print (Fore.YELLOW + Style.BRIGHT + "[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
             if hsrpv1_packet[4][HSRP].auth:
-                print ("[!] Simple HSRP Authentication is used.")
+                print (Fore.YELLOW + Style.BRIGHT + "[!] Simple HSRP Authentication is used.")
                 hsrpv1_plaintext = hsrpv1_packet[4][HSRP].auth
                 simplehsrppass = hsrpv1_plaintext.decode("UTF-8")
-                print ("[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
-            return 0 
-
-# HSRPv2 Scanning
-def detect_hsrpv2(interface, timeout):
-    print(Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the HSRPv2 protocol...")
-    # waiting five HSRPv2 frames for test
-    hsrpv2_packet = sniff(count=5, filter="ip dst 224.0.0.102", iface=args.interface, timeout=args.timeout)
-    if not hsrpv2_packet:
-        print (Fore.RED + Style.BRIGHT + "[!] Error. HSRPv2 isn't detected.")
-        return 0
-    if hsrpv2_packet[0][HSRP].state == 16 and hsrpv2_packet[0][HSRP].priority < 255:
-            print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
-            hsrpv2senderip = hsrpv2_packet[0][IP].src
-            hsrpv2sendermac = hsrpv2_packet[0][Ether].src
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv2senderip)
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv2sendermac)
-            if hsrpv2_packet[0].haslayer(HSRPmd5):
-                print ("[!] HSRP MD5 Authentication is used. You can bruteforce it.")
-                print ("[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
-            if hsrpv2_packet[0][HSRP].auth:
-                print ("[!] Simple HSRP Authentication is used.")
-                hsrpv1_plaintext = hsrpv2_packet[0][HSRP].auth
-                simplehsrppass = hsrpv1_plaintext.decode("UTF-8")
-                print ("[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
-            return 0 
-    if hsrpv2_packet[1][HSRP].state == 16 and hsrpv2_packet[1][HSRP].priority < 255:
-            print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
-            hsrpv2senderip = hsrpv2_packet[1][IP].src
-            hsrpv2sendermac = hsrpv2_packet[1][Ether].src
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv2senderip)
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv2sendermac)
-            if hsrpv2_packet[1].haslayer(HSRPmd5):
-                print ("[!] HSRP MD5 Authentication is used. You can bruteforce it.")
-                print ("[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
-            if hsrpv2_packet[1][HSRP].auth:
-                print ("[!] Simple HSRP Authentication is used.")
-                hsrpv2_plaintext = hsrpv2_packet[1][HSRP].auth
-                simplehsrppass = hsrpv2_plaintext.decode("UTF-8")
-                print ("[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
-            return 0 
-    if hsrpv2_packet[2][HSRP].state == 16 and hsrpv2_packet[2][HSRP].priority < 255:
-            print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
-            hsrpv2senderip = hsrpv2_packet[2][IP].src
-            hsrpv2sendermac = hsrpv2_packet[2][Ether].src
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv2senderip)
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv2sendermac)
-            if hsrpv2_packet[2].haslayer(HSRPmd5):
-                print ("[!] HSRP MD5 Authentication is used. You can bruteforce it.")
-                print ("[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
-            if hsrpv2_packet[2][HSRP].auth:
-                print ("[!] Simple HSRP Authentication is used.")
-                hsrpv2_plaintext = hsrpv2_packet[2][HSRP].auth
-                simplehsrppass = hsrpv2_plaintext.decode("UTF-8")
-                print ("[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
-            return 0 
-    if  hsrpv2_packet[3][HSRP].state == 16 and hsrpv2_packet[3][HSRP].priority < 255:
-            print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
-            hsrpv2senderip = hsrpv2_packet[3][IP].src
-            hsrpv2sendermac = hsrpv2_packet[3][Ether].src
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv2senderip)
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv2sendermac)
-            if hsrpv2_packet[3].haslayer(HSRPmd5):
-                print ("[!] HSRP MD5 Authentication is used. You can bruteforce it.")
-                print ("[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
-            if hsrpv2_packet[3][HSRP].auth:
-                print ("[!] Simple HSRP Authentication is used.")
-                hsrpv1_plaintext = hsrpv2_packet[3][HSRP].auth
-                simplehsrppass = hsrpv2_plaintext.decode("UTF-8")
-                print ("[!] HSRP Plaintext Password: " + + Fore.BLUE + Style.BRIGHT + simplehsrppass)
-            return 0 
-    if  hsrpv2_packet[4][HSRP].state == 16 and hsrpv2_packet[4][HSRP].priority < 255:
-            print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
-            hsrpv2senderip = hsrpv2_packet[4][IP].src
-            hsrpv2sendermac = hsrpv2_packet[4][Ether].src
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv2senderip)
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv2sendermac)
-            if hsrpv2_packet[4].haslayer(HSRPmd5):
-                print ("[!] HSRP MD5 Authentication is used. You can bruteforce it.")
-                print ("[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
-            if hsrpv2_packet[4][HSRP].auth:
-                print ("[!] Simple HSRP Authentication is used.")
-                hsrpv2_plaintext = hsrpv2_packet[4][HSRP].auth
-                simplehsrppass = hsrpv2_plaintext.decode("UTF-8")
-                print ("[!] HSRP Plaintext Password: " + + Fore.BLUE + Style.BRIGHT + simplehsrppass)
+                print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP Plaintext Password: " + Fore.BLUE + Style.BRIGHT + simplehsrppass)
             return 0
 
 # VRRP Scanning
@@ -461,7 +387,6 @@ if __name__ == '__main__':
     parser.add_argument("--eigrp", dest="eigrp",  action='store_true', help="EIGRP Scan")
     parser.add_argument("--vrrp", dest="vrrp",  action='store_true', help="VRRP Scan")
     parser.add_argument("--hsrpv1", dest="hsrpv1", action='store_true', help="HSRPv1 Scan")
-    parser.add_argument("--hsrpv2", dest="hsrpv2", action='store_true', help="HSRPv2 Scan")
     parser.add_argument("--stp", dest="stp",  action='store_true', help="STP Scan")
     parser.add_argument("--llmnr", dest="llmnr",  action='store_true', help="LLMNR Scan")
     parser.add_argument("--nbns", dest="nbns",  action='store_true', help="NBNS Scan")
@@ -492,9 +417,6 @@ if args.vrrp or args.fullscan:
 
 if args.hsrpv1 or args.fullscan:
     detect_hsrpv1(args.interface, args.timeout)
-
-if args.hsrpv2 or args.fullscan:
-    detect_hsrpv2(args.interface, args.timeout)
 
 if args.stp or args.fullscan:
     detect_stp(args.interface, args.timeout)
