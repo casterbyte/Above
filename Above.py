@@ -177,7 +177,7 @@ def detect_eigrp(interface, timeout):
 
 
 # HSRPv1 Scanning
-def detect_hsrpv1():
+def detect_hsrpv1(interface, timeout):
     print(Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the HSRPv1 protocol...")
     # waiting five HSRP frames for test
     hsrpv1_packet = sniff(count=5, filter="ip dst 224.0.0.2", iface=args.interface, timeout=args.timeout)
@@ -261,7 +261,7 @@ def detect_hsrpv1():
             return 0 
 
 # HSRPv2 Scanning
-def detect_hsrpv2():
+def detect_hsrpv2(interface, timeout):
     print(Fore.GREEN + Style.BRIGHT + "\n[+] Sniffing the HSRPv2 protocol...")
     # waiting five HSRPv2 frames for test
     hsrpv2_packet = sniff(count=5, filter="ip dst 224.0.0.102", iface=args.interface, timeout=args.timeout)
