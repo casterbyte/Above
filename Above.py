@@ -188,7 +188,7 @@ def detect_hsrpv1(interface, timeout):
             print ("[*] Info: Detected vulnerable HSRP value of ACTIVE Router")
             hsrpv1senderip = hsrpv1_packet[0][IP].src
             hsrpv1sendermac = hsrpv1_packet[0][Ether].src
-            hsrpv1priority = hsrpv1_packet[1][HSRP].priority
+            hsrpv1priority = hsrpv1_packet[0][HSRP].priority
             print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender Value: " + Fore.BLUE + Style.BRIGHT + str(hsrpv1priority))         
             print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
             print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
@@ -258,8 +258,8 @@ def detect_hsrpv1(interface, timeout):
             hsrpv1sendermac = hsrpv1_packet[4][Ether].src
             hsrpv1priority = hsrpv1_packet[4][HSRP].priority
             print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 ACTIVE Sender Value: " + Fore.BLUE + Style.BRIGHT + str(hsrpv1priority))    
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
-            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv2 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender IP: " + Fore.BLUE + Style.BRIGHT + hsrpv1senderip)
+            print(Fore.YELLOW + Style.BRIGHT + "[*] HSRPv1 Sender MAC: " + Fore.BLUE + Style.BRIGHT + hsrpv1sendermac)
             if hsrpv1_packet[4].haslayer(HSRPmd5):
                 print (Fore.YELLOW + Style.BRIGHT + "[!] HSRP MD5 Authentication is used. You can bruteforce it.")
                 print (Fore.YELLOW + Style.BRIGHT + "[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
