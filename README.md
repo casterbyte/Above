@@ -22,7 +22,7 @@ python3 Above.py --help
 ####################################################################################################
 
 Sniff-based Network Vulnerability Scanner
-Author: Magama Bazarov, @in9uz, <in9uz@protonmail.com>
+Author: Caster, @c4s73r, <c4s73r@protonmail.com>
 
 To skip scanning some protocol during a full scan - hit CTRL + C
 usage: Above.py [-h] --interface INTERFACE --timeout TIMEOUT [--cdp] [--dtp] [--lldp] [--ospf] [--eigrp] [--vrrp] [--hsrpv1] [--stp] [--llmnr] [--nbns] [--dhcpv6] [--fullscan]
