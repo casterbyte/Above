@@ -37,7 +37,7 @@ print(Fore.LIGHTWHITE_EX + Style.BRIGHT + r"""
 ####################################################################################################
 """)
 print(Fore.GREEN + Style.BRIGHT + "Sniff-based Network Vulnerability Scanner")
-print(Fore.GREEN + Style.BRIGHT + "Author: Magama Bazarov, @in9uz, <in9uz@protonmail.com>\n")
+print(Fore.GREEN + Style.BRIGHT + "Author: Caster, @c4s73r, <c4s73r@protonmail.com>\n")
 
 print(Fore.WHITE + Style.BRIGHT + "To skip scanning some protocol during a full scan - hit" + Fore.BLUE + Style.BRIGHT + " CTRL + C")
 
