@@ -1,11 +1,7 @@
 # Above
 
 **Network Vulnerability Scanner by Caster**
-
-**Direction: Penetration Testing**  
-**Genre: Offensive**  
-**Release Date: 1 May 2023**  
-**Label: Github**
+Automates the search for network vulnerabilities, designed for pentesters, Red Team operators, and network security specialists
 
 ```
                                                       ####################################################################################################
