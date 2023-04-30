@@ -12,7 +12,8 @@
 
 ## Mechanics
 
-This script is based on a sniff of network traffic. "Above" is fully autonomous and works in passive mode, creating no noise on the air. Since the 2.0 release, it supports 18 protocols
+This script is based on a sniff of network traffic. "Above" is fully autonomous and works in passive mode, creating no noise on the air.  
+Since the 2.0 release, it supports 18 protocols
 
 ```
 MACSec (802.1AE)
@@ -53,15 +54,11 @@ When the tool finishes analyzing the protocol, it outputs a little information a
 
 ## Install
 
-Above" requires some dependencies to be installed. If necessary, you can use virtualenv
+"Above" requires some dependencies to be installed. If necessary, you can use virtualenv
 
 ```
 sudo pip3 install -r requirements.txt
 ```
-
-## Code Design Issues
-
-"Above" has problems with the code in terms of design/refactoring. I was putting the emphasis specifically on the workability of the code.
 
 ## Last Word
 
