@@ -53,7 +53,7 @@ sudo python3 Above.py --interface eth0 --timeout 60 --ospf --vrrp
 Full scan example:
 
 ```
-sudo python3 Above.py --interface eth0 --timeout 300 --fullscan --promisc-mode
+sudo python3 Above.py --interface eth0 --timeout 300 --fullscan --promisc-mode --resolve-mac
 ```
 
 
