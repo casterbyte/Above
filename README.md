@@ -71,3 +71,4 @@ sudo pip3 install -r requirements.txt
 ## Last Word
 
 This tool is dedicated to the track "View From Above (Remix)" by KOAN Sound
+The 2.0 release greatly enhanced this scanner within its capabilities. Joanna, thank you for your inspiration and love.
