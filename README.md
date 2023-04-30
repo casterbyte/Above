@@ -67,16 +67,16 @@ Since the 2.0 release, it supports 18 protocols
 
 ```
 MACSec (802.1AE)
-MNDP (Mikrotik Neighbor Discovery Protocol)
 DTP (Dynamic Trunking Protocol)
-CDP (Cisco Discovery Protocol)
 EDP (Extreme Discovery Protocol)
-ESRP (Extreme Standby Router Protocol)
+CDP (Cisco Discovery Protocol)
 LLDP (Link Layer Discovery Protocol)
+MNDP (Mikrotik Neighbor Discovery Protocol)
 OSPF (Open Shortest Path First)
 EIGRP (Enhanced Interior Gateway Routing Protocol)
 VRRP (Virtual Router Redundancy Protocol)
 HSRP (Host Standby Redundancy Protocol)
+ESRP (Extreme Standby Router Protocol)
 GLBP (Gateway Load Balancing Protocol)
 STP (Spanning Tree Protocol)
 PVST (Per VLAN Spanning Tree)
@@ -105,9 +105,6 @@ Full scan example:
 ```
 sudo python3 Above.py --interface eth0 --timeout 300 --fullscan --promisc-mode --resolve-mac
 ```
-
-
-
 When the tool finishes analyzing the protocol, it outputs a little information about its configuration, the impact from the attack, which tool the attacker uses
 
 ## Install
@@ -115,7 +112,7 @@ When the tool finishes analyzing the protocol, it outputs a little information a
 "Above" requires some dependencies to be installed. If necessary, you can use virtualenv
 
 ```
-sudo pip3 install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ## Last Word
