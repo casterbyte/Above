@@ -47,8 +47,16 @@ The scanner waits for the following arguments as input:
 Example (OSPF and VRRP protocol scan):
 
 ```
-sudo python3 Above.py --interface eth0 --timeout 60 --ospf --vrrp --resolve-mac --promisc-mode
+sudo python3 Above.py --interface eth0 --timeout 60 --ospf --vrrp
 ```
+
+Full scan example:
+
+```
+sudo python3 Above.py --interface eth0 --timeout 300 --fullscan --promisc-mode
+```
+
+
 
 When the tool finishes analyzing the protocol, it outputs a little information about its configuration, the impact from the attack, which tool the attacker uses
 
