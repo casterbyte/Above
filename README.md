@@ -40,7 +40,7 @@ options:
   --dtp                 DTP Scan
   --mndp                MNDP Scan
   --macsec              MACSec Scan
-  --pvst                PVST+ Scan
+  --pvst                PVST Scan
   --lldp                LLDP Scan
   --ospf                OSPF Scan
   --eigrp               EIGRP Scan
