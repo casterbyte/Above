@@ -2,7 +2,7 @@
 
 **Network Vulnerability Scanner by Caster**
 
-Automates the search for network vulnerabilities, designed for pentesters, Red Team operators, and network security specialists
+Automates the search for network vulnerabilities, designed for pentesters, Red Team operators, and network security engineers
 
 ```
                                                       ####################################################################################################
@@ -86,7 +86,7 @@ DHCPv6 (Dynamic Host Configuration Protocol v6)
 The scanner waits for the following arguments as input:
 
   - Network interface
-  - Timeout: The amount of time that a packet will be waiting for, according to the filters inside the scanner
+  - Timeout: The amount of time that a packet will be waiting for, according to the filters inside the scanner. It is recommended to set 300 seconds.
   - Protocol
   - Promisc Mode
   - Resolve MAC: Vendor detection by MAC (requires Internet access, creates a little noise in the form of HTTP requests
