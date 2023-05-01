@@ -591,7 +591,7 @@ def detect_mdns():
         print(Fore.RED + Style.BRIGHT + "[!] Error. MDNS isn't detected.")
         return 0
     else:
-        print(Fore.GREEN + Style.BRIGHT + "[*] Info: " + Fore.YELLOW + Style.BRIGHT + " Detected MDNS")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Info:" + Fore.YELLOW + Style.BRIGHT + " Detected MDNS")
         mdns_qry_name = mdns_packet[0].mdns.dns_qry_name
         mdns_sender_mac = mdns_packet[0].eth.src
         mdns_sender_address = mdns_packet[0].ip.src
