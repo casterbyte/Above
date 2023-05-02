@@ -52,7 +52,7 @@ options:
   --glbp                GLBP Scan
   --llmnr               LLMNR Scan
   --nbns                NBNS Scan
-  --mdns                mDNS Scan
+  --mdns                MDNS Scan
   --dhcpv6              DHCPv6 Scan
   --fullscan            Scan all protocols
   ```
