@@ -35,7 +35,7 @@ options:
                         Specify your interface
   --timeout TIMEOUT     Specify the timeout. How much time to sniff
   --resolve-mac         Resolve hardware MAC or not
-  --promisc-linux       Enable promisc mode for interface (Linux). Root privileges required!
+  --promisc-linux       Enable promisc mode for interface
   --cdp                 CDP Scan
   --dtp                 DTP Scan
   --mndp                MNDP Scan
