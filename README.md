@@ -106,8 +106,25 @@ When the tool finishes analyzing the protocol, it outputs a little information a
 
 ## Install
 
-"Above" requires some dependencies to be installed. If necessary, you can use virtualenv
+Clone repository:
 
+```
+git clone https://github.com/c4s73r/Above.git
+```
+
+"Above" requires some dependencies to be installed. If necessary, you can use virtualenv:
+
+- With virtualenv:
+```
+sudo apt install python3-venv
+```
+```
+python3 -m venv venv
+source venv/bin/activate
+python3 -m pip install -r requirements.txt
+```
+
+- Without virtualenv:
 ```
 pip3 install -r requirements.txt
 ```
