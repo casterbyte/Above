@@ -24,7 +24,6 @@ Automates the search for network vulnerabilities, designed for pentesters, Red T
                                                       ####################################################################################################
 
                                                                                           Network Vulnerability Scanner
-                                                                                         VERSION: 2.0, CODENAME: JOANNA
                                                                                 Author: Caster, @c4s73r, <c4s73r@protonmail.com>
 usage: Above.py [-h] --interface INTERFACE --timeout TIMEOUT [--resolve-mac] [--promisc-linux] [--cdp] [--dtp] [--mndp] [--macsec] [--pvst] [--lldp] [--ospf] [--eigrp] [--esrp] [--edp] [--vrrp] [--hsrp]
                 [--stp] [--glbp] [--llmnr] [--nbns] [--mdns] [--dhcpv6] [--fullscan]
