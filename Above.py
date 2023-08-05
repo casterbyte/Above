@@ -52,7 +52,6 @@ def centered_text(text, color=Fore.WHITE, style=Style.BRIGHT):
 
 
 print(centered_text("Network Vulnerability Scanner", Fore.WHITE))
-print(centered_text("VERSION: 2.0, CODENAME: JOANNA", Fore.RED))
 print(centered_text("Author: Caster, @c4s73r, <c4s73r@protonmail.com>", Fore.RED))
 
 
