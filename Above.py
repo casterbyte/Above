@@ -52,7 +52,7 @@ def centered_text(text, color=Fore.WHITE, style=Style.BRIGHT):
 
 
 print(centered_text("Network Vulnerability Scanner", Fore.WHITE))
-print(centered_text("Author: Caster, @c4s73r, <c4s73r@protonmail.com>", Fore.RED))
+print(centered_text("Author: Caster, @wearecaster, <casterinfosec@gmail.com>", Fore.RED))
 
 
 # MAC Address Checker (ft. macaddress.io)
