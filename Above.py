@@ -94,7 +94,6 @@ def detect_ciscoprotocols(interface, timer):
         print(Fore.GREEN + Style.BRIGHT + "[*] Impact: " + Fore.YELLOW + Style.BRIGHT + "VLAN Segmentation Bypass")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Yersinia, Scapy")
         print(Fore.GREEN + Style.BRIGHT + "[*] DTP Neighbor MAC: " + Fore.WHITE + Style.BRIGHT + str(dtp_neighbor))
-    return 0
 
 
 # 802.1Q Tags Scan
@@ -117,7 +116,6 @@ def vlan_sniffer(interface, timer):
     print(Fore.GREEN + Style.BRIGHT + "[*] Impact: " + Fore.YELLOW + Style.BRIGHT + "VLAN Segmentation Bypass")
     print(
         Fore.YELLOW + Style.BRIGHT + "[!] Using the IDs found, create the necessary virtual interfaces using Linux tools")
-    return 0
 
 
 # OSPF Scan
@@ -163,7 +161,6 @@ def detect_ospf(interface, timer):
         print(Fore.GREEN + Style.BRIGHT + "[*] OSPF Key ID: " + Fore.WHITE + Style.BRIGHT + str(ospfkeyid))
         print(Fore.GREEN + Style.BRIGHT + "[*] Crypt Data Length: " + Fore.WHITE + Style.BRIGHT + str(authdatalength))
         print(Fore.GREEN + Style.BRIGHT + "[*] Crypt Auth Sequence Number: " + Fore.WHITE + Style.BRIGHT + str(authseq))
-    return 0
 
 
 # EIGRP Scan
@@ -188,7 +185,6 @@ def detect_eigrp(interface, timer):
     eigrpneighborip = eigrppacket[0][IP].src
     print(Fore.GREEN + Style.BRIGHT + "[*] AS Number: " + Fore.WHITE + Style.BRIGHT + str(asnumber))
     print(Fore.GREEN + Style.BRIGHT + "[*] EIGRP Neighbor: " + Fore.WHITE + Style.BRIGHT + str(eigrpneighborip))
-    return 0
 
 
 # HSRP Scan
@@ -271,7 +267,6 @@ def detect_vrrp(interface, timer):
         print(Fore.GREEN + Style.BRIGHT + "[*] VRRP Group Number: " + Fore.WHITE + Style.BRIGHT + str(vrrpgroup))
         print(Fore.GREEN + Style.BRIGHT + "[*] VRRP Speaker IP: " + Fore.WHITE + Style.BRIGHT + ipsrcpacket)
         print(Fore.GREEN + Style.BRIGHT + "[*] VRRP Speaker MAC: " + Fore.WHITE + Style.BRIGHT + vrrpmacsender)
-    return 0
 
 
 # STP Scan
@@ -289,7 +284,6 @@ def detect_stp(interface, timer):
     print(Fore.GREEN + Style.BRIGHT + "[*] STP Root MAC: " + Fore.WHITE + Style.BRIGHT + str(stp_root_mac))
     print(Fore.GREEN + Style.BRIGHT + "[*] STP Root ID: " + Fore.WHITE + Style.BRIGHT + str(stp_root_id))
     print(Fore.GREEN + Style.BRIGHT + "[*] STP Root Path Cost: " + Fore.WHITE + Style.BRIGHT + str(stp_root_pathcost))
-    return 0
 
 
 # LLMNR Scan
@@ -307,7 +301,6 @@ def detect_llmnr(interface, timer):
         llmnr_sender_ip = llmnr_packet[0][IP].src
         print(Fore.GREEN + Style.BRIGHT + "[*] LLMNR Sender IP: " + Fore.WHITE + Style.BRIGHT + str(llmnr_sender_ip))
         print(Fore.GREEN + Style.BRIGHT + "[*] LLMNR Sender MAC: " + Fore.WHITE + Style.BRIGHT + str(llmnr_sender_mac))
-    return 0
 
 # NBT-NS Scan
 def detect_nbns(interface, timer):
@@ -324,7 +317,6 @@ def detect_nbns(interface, timer):
         nbns_packet_ip = nbns_packet[0][IP].src
         print(Fore.GREEN + Style.BRIGHT + "[*] NBT-NS Sender IP: " + Fore.WHITE + Style.BRIGHT + str(nbns_packet_ip))
         print(Fore.GREEN + Style.BRIGHT + "[*] NBT-NS Sender MAC: " + Fore.WHITE + Style.BRIGHT + str(nbns_packet_mac))
-    return 0
 
 
 # MDNS Scan
@@ -342,7 +334,6 @@ def detect_mdns(interface, timer):
         mdns_packet_ip = mdns_packet[0][IP].src
         print(Fore.GREEN + Style.BRIGHT + "[*] MDNS Sender IP: " + Fore.WHITE + Style.BRIGHT + str(mdns_packet_ip))
         print(Fore.GREEN + Style.BRIGHT + "[*] MDNS Sender MAC: " + Fore.WHITE + Style.BRIGHT + str(mdns_packet_mac))
-    return 0
 
 
 # DHCPv6 Scan
@@ -360,7 +351,6 @@ def detect_dhcpv6(interface, timer):
         print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Sender IP: " + Fore.WHITE + Style.BRIGHT + dhcpv6_packet_sender)
         print(
             Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Sender MAC: " + Fore.WHITE + Style.BRIGHT + dhcpv6_mac_address_sender)
-    return 0
 
 
 exit_flag = False
