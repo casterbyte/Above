@@ -1,119 +1,137 @@
-# WARNING
-I'm back to developing Above, the improved version 2.1 will be out very soon.
-
-[27.11.2023] - Almost Finished.
-
 # Above
 
-Automates the search for network vulnerabilities, designed for pentesters, Red Team operators, and network security engineers
+Network protocol sniffer, allows you to find network attack vectors. Designed for pentesters and network security engineers.
+
+![](/logo/above_logo.png)
+
+---
+
+# Disclaimer
+
+**All information contained in this repository is provided for educational and research purposes only. The author is not responsible for any illegal use of this tool**
+
+---
+
+# Mechanics
+
+Above is a standalone network protocol sniffer. It is based entirely on network traffic analysis, so it does not make any noise on the air and is undetectable. Completely based on the Scapy library.
+
+Auxiliary libraries are also used:
+
+- threading - to work with threads
+- shutil - to work with text in a banner
+- argparse - to control arguments
+- signal - to interrupt the code correctly
+- sys - is used together with signal to handle an interrupt
+
+> The main task that Above solves is to search for L2/L3 protocols inside the network and to find vulnerabilities in configurations based on sniffed traffic.
+
+## Supported protocols
+
+Detects up to 12 protocols:
 
 ```
-                                                      ####################################################################################################
-                                                      ####################################################################################################
-                                                      ######P~~~!J5GB#####G~~~!YG#################B?!G##########5~~~75G#############5~~!5########G7~~Y####
-                                                      ######Y  .^.  .?####P  :~..:!JPB###########5:  .?B########J  :^..:!YG#########Y    !P####B7.   ?####
-                                                      ######Y  7&#G5JY####P. 7#BPJ~:.:!JP######G!  ?Y: :5#######Y  7#G57^..:!JP#####Y  ?J  7GBJ. 7J  ?####
-                                                      ######Y  :J5G#&&####P. 7##&&&G?.  !B###BJ. ~P#&B7  !G#####Y  7##&&#P!   !B####Y  7&G! .. ^5&Y  ?####
-                                                      ######Y  ..  .^J####P. 7&#GJ~..~JG####5^ :Y######P~ .JB###Y  ?&B57:.:!JG######Y  7###P~^Y###J  ?####
-                                                      ######Y  !#G5J!J####P. ^7^.:75B#######7  !B&######?  ^G###Y  ^~. :75B#########Y  7##########J  ?####
-                                                      ######Y  !##########P. :^. ^JG#########P^ .J####5^ .J#####Y  .~JG#############Y  7##########J  ?####
-                                                      ######Y  !##########P. 7#GY!. :75B#######J. ^PG7  7G######Y  7&###############Y  7##########J  ?####
-                                                      ######Y  !##########P. 7###&#P?. .!B######G7  . ^5########Y  7################Y  7##########J  ?####
-                                                      ######Y  !##########P. 7###BP?~..~?B######&P:   J#########Y  7################Y  7##########J  ?####
-                                                      ######Y  !##########P. !GJ~..^75B########B7  !?. ~P#######Y  7################Y  7##########J  ?####
-                                                      ######Y  !##########P   .:!YG##########BJ. ^5#&G!  7G#####J  7################Y  !##########J  ?####
-                                                      ######GYJP##########BYYYPB#############GJJYB#####5JJP#####GJJP################GJJP##########GYJP####
-                                                      ########&##################################################&&###################&#############&#####
-                                                      ####################################################################################################
-
-                                                                                          Network Vulnerability Scanner
-                                                                                Author: Caster, @wearecaster, <casterinfosec@gmail.com>
-usage: Above.py [-h] --interface INTERFACE --timeout TIMEOUT [--resolve-mac] [--promisc-linux] [--cdp] [--dtp] [--mndp] [--macsec] [--pvst] [--lldp] [--ospf] [--eigrp] [--esrp] [--edp] [--vrrp] [--hsrp]
-                [--stp] [--glbp] [--llmnr] [--nbns] [--mdns] [--dhcpv6] [--fullscan]
-
-options:
-  -h, --help            show this help message and exit
-  --interface INTERFACE
-                        Specify your interface
-  --timeout TIMEOUT     Specify the timeout. How much time to sniff
-  --resolve-mac         Resolve hardware MAC or not
-  --promisc-linux       Enable promisc mode for interface
-  --cdp                 CDP Scan
-  --dtp                 DTP Scan
-  --mndp                MNDP Scan
-  --macsec              MACSec Scan
-  --pvst                PVST Scan
-  --lldp                LLDP Scan
-  --ospf                OSPF Scan
-  --eigrp               EIGRP Scan
-  --esrp                ESRP Scan
-  --edp                 EDP Scan
-  --vrrp                VRRP Scan
-  --hsrp                HSRP Scan
-  --stp                 STP Scan
-  --glbp                GLBP Scan
-  --llmnr               LLMNR Scan
-  --nbns                NBNS Scan
-  --mdns                MDNS Scan
-  --dhcpv6              DHCPv6 Scan
-  --fullscan            Scan all protocols
-  ```
-
-## Mechanics
-
-This script is based on a sniff of network traffic. "Above" is fully autonomous and works in passive mode, creating no noise on the air.  
-Since the 2.0 release, it supports 18 protocols
-
-```
-MACSec (802.1AE)
-DTP (Dynamic Trunking Protocol)
-EDP (Extreme Discovery Protocol)
 CDP (Cisco Discovery Protocol)
-LLDP (Link Layer Discovery Protocol)
-MNDP (Mikrotik Neighbor Discovery Protocol)
+DTP (Dynamic Trunking Protocol) 
+Dot1Q (VLAN Tagging)
 OSPF (Open Shortest Path First)
 EIGRP (Enhanced Interior Gateway Routing Protocol)
-VRRP (Virtual Router Redundancy Protocol)
-HSRP (Host Standby Redundancy Protocol)
-ESRP (Extreme Standby Router Protocol)
-GLBP (Gateway Load Balancing Protocol)
+VRRPv2 (Virtual Router Redundancy Protocol)
+HSRPv1 (Host Standby Redundancy Protocol)
 STP (Spanning Tree Protocol)
-PVST (Per VLAN Spanning Tree)
 LLMNR (Link Local Multicast Name Resolution)
 NBT-NS (NetBIOS Name Service)
 MDNS (Multicast DNS)
 DHCPv6 (Dynamic Host Configuration Protocol v6)
 ```
 
-The scanner waits for the following arguments as input:
+> I would like to note that sniffing of all protocols is done simultaneously to reduce the time spent on traffic analysis. I achieved this by using special threads.
 
-  - Network interface
-  - Timeout: The amount of time that a packet will be waiting for, according to the filters inside the scanner. It is recommended to set 300 seconds.
-  - Protocol
-  - Promisc Mode
-  - Resolve MAC: Vendor detection by MAC (requires Internet access, creates a little noise in the form of HTTP requests
+## Launching
 
-Example (OSPF and VRRP protocol scan):
+The startup is done along with **two arguments**. Thanks to arguments, the user defines the interface of his system and specifies the timer within which sniffing will be performed. The timer is specified in seconds. The specified timer applies to all protocols.
 
-```
-sudo python3 Above.py --interface eth0 --timeout 60 --ospf --vrrp
+> **LIMITATIONS:** Root permissions are required to run the utility
+
+```bash
+caster@kali:~/Above$ sudo python3 Above.py --interface eth0 --timer 100
 ```
 
-Full scan example:
+> **TIMER VALUE:** The recommended timer value is up to 100-120 seconds, usually enough to detect protocols on the air. You can increase the timer time if needed. Depending on the network infrastructure
+
+## Demo
+
+![](/demo/above_demo.gif)
+
+---
+
+## Information about protocols
+
+If a particular protocol is on the air, Above displays the following information:
+
+- **Impact** - Shows what the impact of a network attack will be
+
+- **Tools** - Indicates the necessary utilities to perform the attack 
+
+- **Technical information** - Indicates the MAC and IP addresses of packet senders, OSPF zone IDs, 802.1Q tags FHRP priority values, authentication availability, and other protocol service information, etc. 
+
+This information will be useful to the pentester, to create a network attack vector, but also to the security engineer who can protect network equipment.
+
+---
+
+# Installation
+
+Above depends on several Python libraries. You should install them from the **requirements.txt** file
+
+```bash
+caster@kali:~/Above$ sudo pip3 install -r requirements.txt
+```
+
+> The development of this version of Above was based on Python version **3.11.6**, Scapy version **2.5.0.dev212**
+
+# Windows Compatibility
+
+Above can also work on Windows, provided the winpcap driver is installed, without which sniffing with Scapy is impossible.
+
+You can use [auto-py-to-exe](https://pypi.org/project/auto-py-to-exe/) to compile the .py script
+
+# How to Use
+
+First, it's worth switching the interface to non-decipherable mode
 
 ```
-sudo python3 Above.py --interface eth0 --timeout 300 --fullscan --promisc-mode --resolve-mac
-```
-When the tool finishes analyzing the protocol, it outputs a little information about its configuration, the impact from the attack, which tool the attacker uses
-
-## Install
-
-"Above" requires some dependencies to be installed. If necessary, you can use virtualenv
-
-```
-pip3 install -r requirements.txt
+caster@kali:~/Above$ sudo ip link set eth0 promisc on 
 ```
 
-## Last Word
+Like I said earlier, Above just needs two arguments to run. After that it will start listening to traffic on your interface, searching for protocols and displaying information about them. The tool is very easy to use
 
-This tool is dedicated to the track "View From Above (Remix)" by KOAN Sound
+```bash
+caster@kali:~/Above$ sudo python3 Above.py --interface eth0 --timer 120
+```
+![](/screens/above_example.png)
+
+> If necessary, you can interrupt the tool by pressing CTRL + C
+
+# Possible Suggestions
+
+If you have any suggestions for improving the scanner or adding new features, feel free to email me personally.
+
+# Metadata
+
+```
+Caster - Above
+
+Written by: Magama Bazarov
+Genre: Offensive, Defensive
+Label: github.com
+Version: 2.1
+Codename: Vivid
+```
+
+# Outro
+
+This tool is dedicated to the track "A View From Above VIP" performed by KOAN Sound.
+This track was all the inspiration for me during the process of working on this tool.
+
+---
+
