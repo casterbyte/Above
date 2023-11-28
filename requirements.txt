@@ -1,6 +1,3 @@
 scapy
 colorama
-pyshark
-requests
 argparse
-subprocess
