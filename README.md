@@ -132,7 +132,7 @@ Codename: Vivid
 
 # Outro
 
-This tool is dedicated to the track "A View From Above VIP" performed by KOAN Sound.
+This tool is dedicated to the track "A View From Above (Remix)" performed by KOAN Sound.
 This track was all the inspiration for me during the process of working on this tool.
 
 ---
