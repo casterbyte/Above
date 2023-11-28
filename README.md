@@ -15,7 +15,7 @@ Designed for pentesters and network security engineers.
 
 # Mechanics
 
-Above is a standalone network protocol sniffer. It is based entirely on network traffic analysis, so it does not make any noise on the air and is undetectable. Completely based on the Scapy library.
+Above is a standalone network protocol sniffer. It is based entirely on network traffic analysis, so it does not make any noise on the air. He's invisible. Completely based on the Scapy library.
 
 Auxiliary libraries are also used:
 
