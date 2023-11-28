@@ -98,7 +98,7 @@ You can use [auto-py-to-exe](https://pypi.org/project/auto-py-to-exe/) to compil
 
 # How to Use
 
-First, it's worth switching the interface to non-decipherable mode
+First, it's worth switching the interface to promiscuous mode
 
 ```
 caster@kali:~/Above$ sudo ip link set eth0 promisc on 
