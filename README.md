@@ -74,7 +74,7 @@ If a particular protocol is on the air, Above displays the following information
 
 - **Tools** - Indicates the necessary utilities to perform the attack 
 
-- **Technical information** - Indicates the MAC and IP addresses of packet senders, OSPF zone IDs, 802.1Q tags FHRP priority values, authentication availability, and other protocol service information, etc. 
+- **Technical information** - Indicates the MAC and IP addresses of packet senders, OSPF zone IDs, 802.1Q tags, FHRP priority values, authentication availability, and other protocol service information, etc. 
 
 This information will be useful to the pentester, to create a network attack vector, but also to the security engineer who can protect network equipment.
 
