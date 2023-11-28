@@ -226,7 +226,7 @@ def detect_hsrp(interface, timer):
                     simplehsrppass = hsrpv1_plaintext.decode("UTF-8")
                     print(
                         Fore.YELLOW + Style.BRIGHT + "[!] Authentication: " + Fore.WHITE + Style.BRIGHT + "Plaintext Phrase: " + simplehsrppass)
-        return 0
+        
 
 
 # VRRP Scan
