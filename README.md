@@ -123,6 +123,7 @@ If you have any suggestions for improving the scanner or adding new features, fe
 Caster - Above
 
 Written by: Magama Bazarov
+Alias: Caster
 Genre: Offensive, Defensive
 Label: github.com
 Version: 2.1
