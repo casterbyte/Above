@@ -58,7 +58,7 @@ The startup is done along with **two arguments**. Thanks to arguments, the user 
 caster@kali:~/Above$ sudo python3 Above.py --interface eth0 --timer 100
 ```
 
-> **TIMER VALUE:** The recommended timer value is up to 100-120 seconds, usually enough to detect protocols on the air. You can increase the timer time if needed. Depending on the network infrastructure
+> **TIMER VALUE:** The recommended timer value is up to 120-150 seconds, usually enough to detect protocols on the air. You can increase the timer time if needed. Depending on the network infrastructure
 
 ## Demo
 
