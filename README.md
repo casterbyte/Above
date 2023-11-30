@@ -55,7 +55,7 @@ The startup is done along with **two arguments**. Thanks to arguments, the user 
 > **LIMITATIONS:** Root permissions are required to run the utility
 
 ```bash
-caster@kali:~/Above$ sudo python3 Above.py --interface eth0 --timer 100
+caster@kali:~$ sudo above --interface eth0 --timer 100
 ```
 
 > **TIMER VALUE:** The recommended timer value is up to 120-150 seconds, usually enough to detect protocols on the air. You can increase the timer time if needed. Depending on the network infrastructure
@@ -82,7 +82,7 @@ This information will be useful to the pentester, to create a network attack vec
 
 # Installation
 
-Above depends on several Python libraries. You should install them from setup.py
+Above depends on several Python libraries. You can install the utility with setup.py
 
 ```bash
 caster@kali:~/Above$ sudo python3 setup.py install 
@@ -100,14 +100,14 @@ You can use [auto-py-to-exe](https://pypi.org/project/auto-py-to-exe/) to compil
 
 First, it's worth switching the interface to promiscuous mode
 
-```
-caster@kali:~/Above$ sudo ip link set eth0 promisc on 
+```bash
+caster@kali:~$ sudo ip link set eth0 promisc on 
 ```
 
 Like I said earlier, Above just needs two arguments to run. After that it will start listening to traffic on your interface, searching for protocols and displaying information about them. The tool is very easy to use
 
 ```bash
-caster@kali:~/Above$ sudo python3 Above.py --interface eth0 --timer 120
+caster@kali:~$ sudo above --interface eth0 --timer 120
 ```
 ![](/screens/above_example.png)
 
