@@ -85,6 +85,8 @@ This information will be useful to the pentester, to create a network attack vec
 Above depends on several Python libraries. You can install the utility with setup.py
 
 ```bash
+caster@kali:~$ git clone https://github.com/wearecaster/Above
+caster@kali:~$ cd Above/
 caster@kali:~/Above$ sudo python3 setup.py install 
 ```
 
