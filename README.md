@@ -82,10 +82,10 @@ This information will be useful to the pentester, to create a network attack vec
 
 # Installation
 
-Above depends on several Python libraries. You should install them from the **requirements.txt** file
+Above depends on several Python libraries. You should install them from setup.py
 
 ```bash
-caster@kali:~/Above$ sudo pip3 install -r requirements.txt
+caster@kali:~/Above$ sudo python3 setup.py install 
 ```
 
 > The development of this version of Above was based on Python version **3.11.6**, Scapy version **2.5.0.dev212**
