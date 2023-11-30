@@ -11,7 +11,7 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     license="Apache-2.0",
-    keywords=['information gathering', 'penetration testing', 'network security', 'network sniffer', 'network analysis'],
+    keywords=['information gathering', 'penetration testing', 'network security', 'network sniffer'],
     packages=find_packages(),
     install_requires=[
         'scapy',
