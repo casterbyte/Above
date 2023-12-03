@@ -15,6 +15,7 @@ import shutil
 import argparse
 import signal
 import sys
+from pcap_analyzer import analyze_pcap
 
 # The design of the code leaves a lot to be desired.
 # First of all, I wrote the code in such a way that it would work as intended.
@@ -55,46 +56,47 @@ def centered_text(text, color=Fore.WHITE, style=Style.BRIGHT):
     return f"{color}{style}{padding}{text}"
 
 
-print(centered_text("Network Sniffer for Finding Vulnerabilities", Fore.WHITE))
-print(centered_text("Version 2.1, Codename: Vivid", Fore.YELLOW))
+print(centered_text("Invisible Network Protocol Sniffer", Fore.WHITE))
+print(centered_text("Version 2.2, Codename: Vivid", Fore.YELLOW))
 print(centered_text("Author: Caster, @wearecaster, <casterinfosec@gmail.com>", Fore.WHITE))
 
 
 # CDP & DTP Scan
-def detect_ciscoprotocols(interface, timer):
-    cdp_frame = sniff(filter="ether dst 01:00:0c:cc:cc:cc", count=1, timeout=timer, iface=interface)
-    if not cdp_frame:
+def detect_ciscoprotocols(interface, timer, output_file):
+    cp_frame = sniff(filter="ether dst 01:00:0c:cc:cc:cc", count=1, timeout=timer, iface=interface)
+    if not cp_frame:
         return 0
-    snapcode = cdp_frame[0][SNAP].code
+    if output_file:
+        save_to_pcap(cp_frame, output_file)
+    snapcode = cp_frame[0][SNAP].code
     # For CDP Protocol
     if snapcode == 0x2000:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected CDP Protocol")
         print(Fore.GREEN + Style.BRIGHT + "[*] Impact: " + Fore.YELLOW + Style.BRIGHT + "Information Gathering, DoS")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Yersinia, Wireshark")
-        cdphostname = cdp_frame[0][CDPMsgDeviceID].val
+        cdphostname = cp_frame[0][CDPMsgDeviceID].val
         print(
             Fore.GREEN + Style.BRIGHT + "[*] System Hostname: " + Fore.WHITE + Style.BRIGHT + str(cdphostname.decode()))
-        cdphardwareversion = cdp_frame[0][CDPMsgSoftwareVersion].val
+        cdphardwareversion = cp_frame[0][CDPMsgSoftwareVersion].val
         print(Fore.GREEN + Style.BRIGHT + "[*] Target Version: " + Fore.WHITE + Style.BRIGHT + str(
             cdphardwareversion.decode()))
-        cdphardwareplatform = cdp_frame[0][CDPMsgPlatform].val
+        cdphardwareplatform = cp_frame[0][CDPMsgPlatform].val
         print(Fore.GREEN + Style.BRIGHT + "[*] Target Platform: " + Fore.WHITE + Style.BRIGHT + str(
             cdphardwareplatform.decode()))
-        cdpportid = cdp_frame[0][CDPMsgPortID].iface
+        cdpportid = cp_frame[0][CDPMsgPortID].iface
         print(Fore.GREEN + Style.BRIGHT + "[*] Port ID: " + Fore.WHITE + Style.BRIGHT + str(cdpportid.decode()))
-        if cdp_frame[0].haslayer(CDPAddrRecordIPv4):
-            cdpaddr = cdp_frame[0][CDPAddrRecordIPv4].addr
+        if cp_frame[0].haslayer(CDPAddrRecordIPv4):
+            cdpaddr = cp_frame[0][CDPAddrRecordIPv4].addr
             print(Fore.GREEN + Style.BRIGHT + "[*] IP Address: " + Fore.WHITE + Style.BRIGHT + cdpaddr)
     # For DTP Protocol       
     if snapcode == 0x2004:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected DTP Protocol")
-        dtp_neighbor = cdp_frame[0][DTPNeighbor].neighbor
+        dtp_neighbor = cp_frame[0][DTPNeighbor].neighbor
         print(Fore.GREEN + Style.BRIGHT + "[*] Impact: " + Fore.YELLOW + Style.BRIGHT + "VLAN Segmentation Bypass")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Yersinia, Scapy")
         print(Fore.GREEN + Style.BRIGHT + "[*] DTP Neighbor MAC: " + Fore.WHITE + Style.BRIGHT + str(dtp_neighbor))
-
 
 # 802.1Q Tags Scan
 def vlan_sniffer(interface, timer):
@@ -119,10 +121,12 @@ def vlan_sniffer(interface, timer):
 
 
 # OSPF Scan
-def detect_ospf(interface, timer):
+def detect_ospf(interface, timer, output_file):
     ospfpacket = sniff(filter="ip dst 224.0.0.5 and ip proto 89", count=1, iface=interface, timeout=timer)
     if not ospfpacket:
         return 0
+    if output_file:
+        save_to_pcap(ospfpacket, output_file)
 
     # For display cleartext string (simple OSPF auth)
     def hex_to_string(hex):
@@ -164,11 +168,13 @@ def detect_ospf(interface, timer):
 
 
 # EIGRP Scan
-def detect_eigrp(interface, timer):
+def detect_eigrp(interface, timer, output_file):
     eigrppacket = sniff(filter="ip dst 224.0.0.10 and ip proto 88", count=1, timeout=timer, iface=interface)
     if not eigrppacket:
         return 0
     else:
+        if output_file:
+            save_to_pcap(eigrppacket, output_file)
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected EIGRP Protocol")
         print(
@@ -188,13 +194,15 @@ def detect_eigrp(interface, timer):
 
 
 # HSRP Scan
-def detect_hsrp(interface, timer):
+def detect_hsrp(interface, timer, output_file):
     # This is HSRPv1
     hsrp_detected = False  # Flag to track if HSRP packet with state 16 has been detected
     while True:
         hsrpv1_packet = sniff(count=1, filter="ip dst 224.0.0.2 and udp port 1985", iface=interface, timeout=timer)
         if not hsrpv1_packet:
             return 0
+        if output_file:
+            save_to_pcap(hsrpv1_packet, output_file)
         if hsrpv1_packet[0][HSRP].state == 16 and hsrpv1_packet[0][HSRP].priority < 255 and not hsrp_detected:
             hsrp_detected = True  # Set the flag to True to indicate that HSRP packet with state 16 has been detected
             hsrpv1senderip = hsrpv1_packet[0][IP].src
@@ -226,18 +234,21 @@ def detect_hsrp(interface, timer):
 
 
 # VRRP Scan
-def detect_vrrp(interface, timer):
+def detect_vrrp(interface, timer, output_file):
     # This is VRRPv2
     vrrppacket = sniff(filter="ip dst 224.0.0.18 or ip proto 112", count=1, timeout=timer, iface=interface)
     if not vrrppacket:
         return 0
     else:
+        if output_file:
+            save_to_pcap(vrrppacket, output_file)
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected VRRPv2 Protocol")
         if vrrppacket[0].haslayer(AH):
             print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: " + Fore.WHITE + Style.BRIGHT + "AH")
             print(Fore.YELLOW + Style.BRIGHT + "[*] If this router is running RouterOS and AH is active - at this time, bruteforcing AH hashes from RouterOS is considered impossible")
             print(Fore.YELLOW + Style.BRIGHT + "[*] If it is keepalived, there is no problem with bruteforcing the AH hash")
+            print(Fore.YELLOW + Style.BRIGHT + "[*] Unfortunately at the moment there is no tool that sends VRRP packets with AH authentication support")
             print(Fore.YELLOW + Style.BRIGHT + "[+] Skipping...")
             return 0
         vrrppriority = vrrppacket[0][VRRP].priority
@@ -270,10 +281,12 @@ def detect_vrrp(interface, timer):
 
 
 # STP Scan
-def detect_stp(interface, timer):
+def detect_stp(interface, timer, output_file):
     stp_frame = sniff(filter="ether dst 01:80:c2:00:00:00", count=1, timeout=timer, iface=interface)
     if not stp_frame:
         return 0
+    if output_file:
+        save_to_pcap(stp_frame, output_file)
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected STP Protocol")
     print(Fore.GREEN + Style.BRIGHT + "[*] Impact: " + Fore.YELLOW + Style.BRIGHT + "Partial MITM")
@@ -287,11 +300,13 @@ def detect_stp(interface, timer):
 
 
 # LLMNR Scan
-def detect_llmnr(interface, timer):
+def detect_llmnr(interface, timer, output_file):
     llmnr_packet = sniff(filter="ip dst 224.0.0.252 and udp port 5355", count=1, timeout=timer, iface=interface)
     if not llmnr_packet:
         return 0
     else:
+        if output_file:
+            save_to_pcap(llmnr_packet, output_file)
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected LLMNR Protocol")
         print(
@@ -303,11 +318,13 @@ def detect_llmnr(interface, timer):
         print(Fore.GREEN + Style.BRIGHT + "[*] LLMNR Sender MAC: " + Fore.WHITE + Style.BRIGHT + str(llmnr_sender_mac))
 
 # NBT-NS Scan
-def detect_nbns(interface, timer):
+def detect_nbns(interface, timer, output_file):
     nbns_packet = sniff(filter="ether dst ff:ff:ff:ff:ff:ff and udp port 137", count=1, timeout=timer, iface=interface)
     if not nbns_packet:
         return 0
     else:
+        if output_file:
+            save_to_pcap(nbns_packet, output_file)
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected NBT-NS Protocol")
         print(
@@ -320,11 +337,13 @@ def detect_nbns(interface, timer):
 
 
 # MDNS Scan
-def detect_mdns(interface, timer):
+def detect_mdns(interface, timer, output_file):
     mdns_packet = sniff(filter="ip dst 224.0.0.251 and udp port 5353", count=1, timeout=timer, iface=interface)
     if not mdns_packet:
         return 0
     else:
+        if output_file:
+            save_to_pcap(mdns_packet, output_file)
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected MDNS Protocol")
         print(
@@ -337,11 +356,13 @@ def detect_mdns(interface, timer):
 
 
 # DHCPv6 Scan
-def detect_dhcpv6(interface, timer):
+def detect_dhcpv6(interface, timer, output_file):
     dhcpv6_packet = sniff(filter="udp and port 546 and port 547", count=1, iface=interface, timeout=timer)
     if not dhcpv6_packet:
         return 0
     else:
+        if output_file:
+            save_to_pcap(dhcpv6_packet, output_file)
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected DHCPv6 Protocol")
         print(Fore.GREEN + Style.BRIGHT + "[*] Impact: " + Fore.YELLOW + Style.BRIGHT + "DNS IPv6 Spoofing")
@@ -353,7 +374,21 @@ def detect_dhcpv6(interface, timer):
             Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Sender MAC: " + Fore.WHITE + Style.BRIGHT + dhcpv6_mac_address_sender)
 
 
+output_lock = threading.Lock()
 exit_flag = False
+output_message_displayed = False
+
+# Save traffic to pcap format
+def save_to_pcap(packet, output_file):
+    global output_message_displayed
+    with output_lock:
+        try:
+            wrpcap(output_file, packet, append=True)
+            if not output_message_displayed:
+                print(Fore.YELLOW + Style.BRIGHT + f"[*]The detected protocols are recorded in {output_file}")
+                output_message_displayed = True
+        except Exception as e:
+            print(Fore.RED + Style.BRIGHT + f"Error saving to pcap: {e}")
 
 
 # To interrupt the code by pressing CTRL + C
@@ -366,68 +401,51 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 
+# Protocols Sniffing, Threads
+def start_sniffing(interface, timer, output_file):
+    print(Fore.WHITE + Style.BRIGHT + "\n[+] Start Sniffing...")
+    print(Fore.WHITE + Style.BRIGHT + "\n[+] Searching for L2/L3 Protocols...")
+    print(Fore.WHITE + Style.BRIGHT + "[*] The specified timer applies to all protocols")
+    print(Fore.GREEN + Style.BRIGHT + "[*] After the protocol is detected - all necessary information about it will be displayed")
+    cdp_thread = threading.Thread(target=detect_ciscoprotocols, args=(interface, timer, output_file))
+    dot1q_thread = threading.Thread(target=vlan_sniffer, args=(interface, timer))
+    ospf_thread = threading.Thread(target=detect_ospf, args=(interface, timer, output_file))
+    eigrp_thread = threading.Thread(target=detect_eigrp, args=(interface, timer, output_file))
+    hsrp_thread = threading.Thread(target=detect_hsrp, args=(interface, timer, output_file))
+    vrrp_thread = threading.Thread(target=detect_vrrp, args=(interface, timer, output_file))
+    stp_thread = threading.Thread(target=detect_stp, args=(interface, timer, output_file))
+    llmnr_thread = threading.Thread(target=detect_llmnr, args=(interface, timer, output_file))
+    nbns_thread = threading.Thread(target=detect_nbns, args=(interface, timer, output_file))
+    mdns_thread = threading.Thread(target=detect_mdns, args=(interface, timer, output_file))
+    dhcpv6_thread = threading.Thread(target=detect_dhcpv6, args=(interface, timer, output_file))
 
-# Main func, arguments processing, threads processing
+    threads = [cdp_thread, dot1q_thread, ospf_thread, eigrp_thread, hsrp_thread,
+    vrrp_thread, stp_thread, llmnr_thread, nbns_thread, mdns_thread, dhcpv6_thread]
+        
+    for thread in threads:
+        thread.daemon = True
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+# Main function, args parsing, etc
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--interface", dest="interface", type=str, required=True, help="Specify the interface")
-    parser.add_argument("--timer", dest="timer", type=int, required=True, help="Specify the timer value (seconds)")
-
+    parser.add_argument("--interface", dest="interface", type=str, required=None, help="Specify the interface")
+    parser.add_argument("--timer", dest="timer", type=int, required=None, help="Specify the timer value (seconds)")
+    parser.add_argument("--output-pcap", dest="output_file", type=str, required=None, help="Specify the output pcap file to record traffic")
+    parser.add_argument("--input-pcap", dest="input_file", type=str, required=None, help="Specify the input pcap file to analyze traffic")
     args = parser.parse_args()
-    if args.interface and args.timer:
-        print(Fore.WHITE + Style.BRIGHT + "\n[+] Start Sniffing...")
-        print(Fore.WHITE + Style.BRIGHT + "\n[+] Searching for L2/L3 Protocols...")
-        print(Fore.WHITE + Style.BRIGHT + "[*] The specified timer applies to all protocols")
-        print(
-            Fore.GREEN + Style.BRIGHT + "[*] After the protocol is detected - all necessary information about it will be displayed")
 
-    cdp_thread = threading.Thread(target=detect_ciscoprotocols, args=(args.interface, args.timer))
-    dot1q_thread = threading.Thread(target=vlan_sniffer, args=(args.interface, args.timer))
-    ospf_thread = threading.Thread(target=detect_ospf, args=(args.interface, args.timer))
-    eigrp_thread = threading.Thread(target=detect_eigrp, args=(args.interface, args.timer))
-    hsrp_thread = threading.Thread(target=detect_hsrp, args=(args.interface, args.timer))
-    vrrp_thread = threading.Thread(target=detect_vrrp, args=(args.interface, args.timer))
-    stp_thread = threading.Thread(target=detect_stp, args=(args.interface, args.timer))
-    llmnr_thread = threading.Thread(target=detect_llmnr, args=(args.interface, args.timer))
-    nbns_thread = threading.Thread(target=detect_nbns, args=(args.interface, args.timer))
-    mdns_thread = threading.Thread(target=detect_mdns, args=(args.interface, args.timer))
-    dhcpv6_thread = threading.Thread(target=detect_dhcpv6, args=(args.interface, args.timer))
+    if not any(vars(args).values()):
+        print(Fore.YELLOW + Style.BRIGHT + "[!] Use --help to work with the tool")
 
-    cdp_thread.daemon = True
-    dot1q_thread.daemon = True
-    ospf_thread.daemon = True
-    eigrp_thread.daemon = True
-    hsrp_thread.daemon = True
-    vrrp_thread.daemon = True
-    stp_thread.daemon = True
-    llmnr_thread.daemon = True
-    nbns_thread.daemon = True
-    mdns_thread.daemon = True
-    dhcpv6_thread.daemon = True
-
-    cdp_thread.start()
-    dot1q_thread.start()
-    ospf_thread.start()
-    eigrp_thread.start()
-    hsrp_thread.start()
-    vrrp_thread.start()
-    stp_thread.start()
-    llmnr_thread.start()
-    nbns_thread.start()
-    mdns_thread.start()
-    dhcpv6_thread.start()
-
-    cdp_thread.join()
-    dot1q_thread.join()
-    ospf_thread.join()
-    eigrp_thread.join()
-    hsrp_thread.join()
-    vrrp_thread.join()
-    stp_thread.join()
-    llmnr_thread.join()
-    nbns_thread.join()
-    mdns_thread.join()
-    dhcpv6_thread.join()
+    if args.input_file:
+        print(Fore.WHITE + Style.BRIGHT + "\n[+] Start Analyzing pcap...")
+        analyze_pcap(args.input_file)
+    elif args.interface and (args.timer or args.output_file):
+        start_sniffing(args.interface, args.timer, args.output_file)
 
 
 if __name__ == "__main__":
