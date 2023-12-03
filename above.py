@@ -57,7 +57,7 @@ def centered_text(text, color=Fore.WHITE, style=Style.BRIGHT):
 
 
 print(centered_text("Invisible Network Protocol Sniffer", Fore.WHITE))
-print(centered_text("Version 2.2, Codename: Vivid", Fore.YELLOW))
+print(centered_text("Version 2.2, Codename: Vettel", Fore.YELLOW))
 print(centered_text("Author: Caster, @wearecaster, <casterinfosec@gmail.com>", Fore.WHITE))
 
 
