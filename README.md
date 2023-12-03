@@ -1,29 +1,25 @@
 # Above
 
-Network protocol sniffer, allows you to find network attack vectors. 
-Designed for pentesters and network security engineers.
+Invisible network protocol sniffer to find network vulnerabilities in traffic.
 
-![](/logo/above_logo.png)
+Designed for pentesters and security professionals
+
+![](/cover/tool_cover.png)
+> Cover for tool
 
 ---
 
 # Disclaimer
 
-**All information contained in this repository is provided for educational and research purposes only. The author is not responsible for any illegal use of this tool**
+**All information contained in this repository is provided for educational and research purposes only. The author is not responsible for any illegal use of this tool**.
+
+**It is a specialized network security tool that helps both pentesters and security professionals**.
 
 ---
 
 # Mechanics
 
-Above is a standalone network protocol sniffer. It is based entirely on network traffic analysis, so it does not make any noise on the air. He's invisible. Completely based on the Scapy library.
-
-Auxiliary libraries are also used:
-
-- threading - to work with threads
-- shutil - to work with text in a banner
-- argparse - to control arguments
-- signal - to interrupt the code correctly
-- sys - is used together with signal to handle an interrupt
+Above is a invisible network sniffer for finding vulnerabilities in network equipment. It is based entirely on network traffic analysis, so it does not make any noise on the air. He's invisible. Completely based on the Scapy library.
 
 > The main task that Above solves is to search for L2/L3 protocols inside the network and to find vulnerabilities in configurations based on sniffed traffic.
 
@@ -46,43 +42,64 @@ MDNS (Multicast DNS)
 DHCPv6 (Dynamic Host Configuration Protocol v6)
 ```
 
-> I would like to note that sniffing of all protocols is done simultaneously to reduce the time spent on traffic analysis. I achieved this by using special threads.
+> All protocols are analyzed simultaneously due to the threads design
 
-## Launching
+## Operating Mechanism
 
-The startup is done along with **two arguments**. Thanks to arguments, the user defines the interface of his system and specifies the timer within which sniffing will be performed. The timer is specified in seconds. The specified timer applies to all protocols.
+Above works in two modes:
 
-> **LIMITATIONS:** Root permissions are required to run the utility
+- Hot sniffing on your interface specifying a timer
+- Analyzing traffic dumps in cold mode (Offline)
 
-```bash
-caster@kali:~$ sudo above --interface eth0 --timer 100
+The tool is very simple in its operation and is driven by arguments:
+
+- Interface. Specifying the network interface on which sniffing will be performed
+- Timer. Time during which traffic analysis will be performed
+- Output pcap: Above will record the listened traffic to pcap file, its name you specify yourself
+- Input pcap: The tool takes an already prepared .pcap as input and looks for protocols in it
+
+```
+usage: above [-h] [--interface INTERFACE] [--timer TIMER] [--output-pcap OUTPUT_FILE] [--input-pcap INPUT_FILE]
+
+options:
+  -h, --help            show this help message and exit
+  --interface INTERFACE
+                        Specify the interface
+  --timer TIMER         Specify the timer value (seconds)
+  --output-pcap OUTPUT_FILE
+                        Specify the output pcap file to record traffic
+  --input-pcap INPUT_FILE
+                        Specify the input pcap file to analyze traffic
 ```
 
-> **TIMER VALUE:** The recommended timer value is up to 120-150 seconds, usually enough to detect protocols on the air. You can increase the timer time if needed. Depending on the network infrastructure
 
-## Demo
 
-![](/demo/above_demo.gif)
+## Traffic Sniffing Demo
+
+![](/demos/sniffing-demo.gif)
+> Sorry for not the best quality, Github has file size limits on uploads
 
 ---
 
 ## Information about protocols
 
-If a particular protocol is on the air, Above displays the following information:
+The information obtained will be useful not only to the attacker, but also to the security engineer, he will know what he needs to pay attention to.
 
-- **Impact** - Shows what the impact of a network attack will be
+When Above detects a protocol, it outputs the necessary information to indicate the attack vector or security issue:
 
-- **Tools** - Indicates the necessary utilities to perform the attack 
+- **Impact** - What kind of attack can be performed on this protocol;
 
-- **Technical information** - Indicates the MAC and IP addresses of packet senders, OSPF zone IDs, 802.1Q tags, FHRP priority values, authentication availability, and other protocol service information, etc. 
+- **Tools** - What tool can be used to launch an attack;
 
-This information will be useful to the pentester, to create a network attack vector, but also to the security engineer who can protect network equipment.
+- **Technical information** - Required information for the attacker, sender IP addresses, FHRP group IDs, OSPF/EIGRP domains, etc.
+
+  > This information can also be used by a security engineer to improve network security
 
 ---
 
 # Installation
 
-Above depends on several Python libraries. You can install the utility with setup.py
+Above is very easy to install using **setup.py**
 
 ```bash
 caster@kali:~$ git clone https://github.com/wearecaster/Above
@@ -102,35 +119,37 @@ You can use [auto-py-to-exe](https://pypi.org/project/auto-py-to-exe/) to compil
 
 First, it's worth switching the interface to promiscuous mode
 
+> Above requires root access for sniffing
+
 ```bash
 caster@kali:~$ sudo ip link set eth0 promisc on 
 ```
 
-Like I said earlier, Above just needs two arguments to run. After that it will start listening to traffic on your interface, searching for protocols and displaying information about them. The tool is very easy to use
+Above requires at least an interface and a timer at startup. Choose the timer from your calculations.
 
 ```bash
 caster@kali:~$ sudo above --interface eth0 --timer 120
 ```
-![](/screens/above_example.png)
+If you need to record the sniffed traffic, use the `--output-pcap` argument
 
-> If necessary, you can interrupt the tool by pressing CTRL + C
+```bash
+caster@kali:~$ sudo above --interface eth0 --timer 120 --output-pcap dump.pcap
+```
 
-# Possible Suggestions
-
-If you have any suggestions for improving the scanner or adding new features, feel free to email me personally.
-
-# Metadata
+If you already have some recorded traffic, you can use the `--input-pcap` argument to look for potential security issues
 
 ```
-Caster - Above
-
-Written by: Magama Bazarov
-Alias: Caster
-Genre: Offensive, Defensive
-Label: github.com
-Version: 2.1
-Codename: Vivid
+caster@kali:~$ above --input-pcap dump.pcap
 ```
+
+## PCAP Analyzing Demo
+
+![](/demos/pcap-analyzing.gif)
+> Sorry for not the best quality, Github has file size limits on uploads
+
+# Suggestions
+
+If you find bugs in this tool or have suggestions on how to improve this tool, feel free to email me personally!
 
 # Outro
 
