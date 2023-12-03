@@ -385,7 +385,7 @@ def save_to_pcap(packet, output_file):
         try:
             wrpcap(output_file, packet, append=True)
             if not output_message_displayed:
-                print(Fore.YELLOW + Style.BRIGHT + f"[*]The detected protocols are recorded in {output_file}")
+                print(Fore.YELLOW + Style.BRIGHT + f"[*] The detected protocols are recorded in {output_file}")
                 output_message_displayed = True
         except Exception as e:
             print(Fore.RED + Style.BRIGHT + f"Error saving to pcap: {e}")
