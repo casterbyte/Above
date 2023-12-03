@@ -2,12 +2,12 @@ from setuptools import setup, find_packages
 
 setup(
     name="above",
-    version="2.1",
+    version="2.2",
     url="https://github.com/wearecaster/above",
     author="Caster",
     author_email="casterinfosec@gmail.com",
     scripts=['above.py'],
-    description="Autonomous network sniffer for finding network vulnerabilities",
+    description="Invisible Network Protocol Sniffer",
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     license="Apache-2.0",
@@ -17,9 +17,9 @@ setup(
         'scapy',
         'colorama',
     ],
-entry_points={
-    "console_scripts": ["above = above:main"],
+    py_modules=['pcap_analyzer'],
+    entry_points={
+        "console_scripts": ["above = above:main"],
     },
-
     python_requires='>=3.11',
 )
