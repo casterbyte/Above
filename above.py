@@ -442,7 +442,7 @@ def main():
         print(Fore.YELLOW + Style.BRIGHT + "[!] Use --help to work with the tool")
 
     if args.input_file:
-        print(Fore.WHITE + Style.BRIGHT + "\n[+] Start Analyzing pcap...")
+        print(Fore.WHITE + Style.BRIGHT + "\n[+] Start analyzing pcap file...")
         analyze_pcap(args.input_file)
     elif args.interface and (args.timer or args.output_file):
         start_sniffing(args.interface, args.timer, args.output_file)
