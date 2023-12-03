@@ -407,7 +407,7 @@ def start_sniffing(interface, timer, output_file):
     print(Fore.WHITE + Style.BRIGHT + "\n[+] Searching for L2/L3 Protocols...")
     print(Fore.WHITE + Style.BRIGHT + "[*] The specified timer applies to all protocols")
     print(Fore.GREEN + Style.BRIGHT + "[*] After the protocol is detected - all necessary information about it will be displayed")
-    cdp_thread = threading.Thread(target=detect_ciscoprotocols, args=(interface, timer, output_file))
+    cp_thread = threading.Thread(target=detect_ciscoprotocols, args=(interface, timer, output_file))
     dot1q_thread = threading.Thread(target=vlan_sniffer, args=(interface, timer))
     ospf_thread = threading.Thread(target=detect_ospf, args=(interface, timer, output_file))
     eigrp_thread = threading.Thread(target=detect_eigrp, args=(interface, timer, output_file))
@@ -419,7 +419,7 @@ def start_sniffing(interface, timer, output_file):
     mdns_thread = threading.Thread(target=detect_mdns, args=(interface, timer, output_file))
     dhcpv6_thread = threading.Thread(target=detect_dhcpv6, args=(interface, timer, output_file))
 
-    threads = [cdp_thread, dot1q_thread, ospf_thread, eigrp_thread, hsrp_thread,
+    threads = [cp_thread, dot1q_thread, ospf_thread, eigrp_thread, hsrp_thread,
     vrrp_thread, stp_thread, llmnr_thread, nbns_thread, mdns_thread, dhcpv6_thread]
         
     for thread in threads:
