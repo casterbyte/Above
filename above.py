@@ -394,7 +394,7 @@ def save_to_pcap(packet, output_file):
 # To interrupt the code by pressing CTRL + C
 def signal_handler(sig, frame):
     global exit_flag
-    print("\n[!] Sniffing interrupted. Exiting...")
+    print("\n[!] CTRL + C is pressed. Exiting...")
     exit_flag = True
     sys.exit(0)
 
