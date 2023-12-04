@@ -1,6 +1,6 @@
 # Above v2.2 (Codename: Vettel)
 
-Invisible network protocol sniffer to find network vulnerabilities in traffic.
+Invisible protocol sniffer for finding vulnerabilities in the network. Designed for pentesters and security professionals.
 
 Designed for pentesters and security professionals
 
