@@ -2,8 +2,6 @@
 
 Invisible protocol sniffer for finding vulnerabilities in the network. Designed for pentesters and security professionals.
 
-Designed for pentesters and security professionals
-
 ![](/cover/tool_cover.png)
 > Cover for tool
 
