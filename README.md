@@ -85,11 +85,11 @@ When Above detects a protocol, it outputs the necessary information to indicate 
 
 - Impact: What kind of attack can be performed on this protocol;
 
-- Tools: - What tool can be used to launch an attack;
+- Tools: What tool can be used to launch an attack;
 
-- Technical information: - Required information for the attacker, sender IP addresses, FHRP group IDs, OSPF/EIGRP domains, etc.
+- Technical information: Required information for the attacker, sender IP addresses, FHRP group IDs, OSPF/EIGRP domains, etc.
 
-- Mitigation: - Recommendations for fixing the security problems
+- Mitigation: Recommendations for fixing the security problems
 
 ---
 
