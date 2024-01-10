@@ -145,7 +145,7 @@ caster@kali:~$ above --input-pcap dump.pcap
 
 ## Pcap Analyzing Demo (Cold mode)
 
-![](/demos/coldmode.gif)
+![](/demos/cold-mode.gif)
 
 
 # Outro
