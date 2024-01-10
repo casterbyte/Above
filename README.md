@@ -1,11 +1,8 @@
-# Above v2.2 (Codename: Vettel)
+# Above v2.3 (Codename: Radiant)
 
-Invisible protocol sniffer for finding vulnerabilities in the network. Designed for pentesters and security professionals.
+Invisible protocol sniffer for finding vulnerabilities in the network hardware. Designed for pentesters and security engineers.
 
-![](/cover/tool_cover.png)
-> Cover for tool
-
----
+![](/cover/tool-cover.png)
 
 # Disclaimer
 
@@ -19,25 +16,38 @@ Invisible protocol sniffer for finding vulnerabilities in the network. Designed 
 
 Above is a invisible network sniffer for finding vulnerabilities in network equipment. It is based entirely on network traffic analysis, so it does not make any noise on the air. He's invisible. Completely based on the Scapy library.
 
-> The main task that Above solves is to search for L2/L3 protocols inside the network and to find vulnerabilities in configurations based on sniffed traffic.
+> Above allows pentesters to automate the process of finding vulnerabilities in network hardware. Discovery protocols, dynamic routing, FHRP, STP, DP, etc.
 
 ## Supported protocols
 
-Detects up to 12 protocols:
+Detects up to 14 protocols:
 
 ```
 CDP (Cisco Discovery Protocol)
-DTP (Dynamic Trunking Protocol) 
-Dot1Q (VLAN Tagging)
+DTP (Dynamic Trunking Protocol)
+802.1Q Tags (VLAN)
+LLDP (Link Layer Discovery Protocol) 
 OSPF (Open Shortest Path First)
 EIGRP (Enhanced Interior Gateway Routing Protocol)
-VRRPv2 (Virtual Router Redundancy Protocol)
+VRRPv2/v3 (Virtual Router Redundancy Protocol)
 HSRPv1 (Host Standby Redundancy Protocol)
 STP (Spanning Tree Protocol)
 LLMNR (Link Local Multicast Name Resolution)
 NBT-NS (NetBIOS Name Service)
 MDNS (Multicast DNS)
 DHCPv6 (Dynamic Host Configuration Protocol v6)
+SSDP (Simple Service Discovery Protocol)
+MNDP (MikroTik Neighbor Discovery Protocol)
+```
+```
+L2 (CDP, DTP, LLDP, 802.1Q Frames, STP)
+Attack Impact: Information Gathering, Partial MITM, VLAN Hopping
+
+L3 (OSPF, EIGRP, HSRP, VRRP)
+Attack Impact: Subnets Discovery, MITM
+
+L7 (SSDP, LLMNR, NBT-NS, MDNS)
+Attack Impact: Windows machines poisoning (Credentials Interception, NetNTLMv2-SSP), Coerce Attacks
 ```
 
 > All protocols are analyzed simultaneously due to the threads design
@@ -46,13 +56,13 @@ DHCPv6 (Dynamic Host Configuration Protocol v6)
 
 Above works in two modes:
 
-- Hot sniffing on your interface specifying a timer
-- Analyzing traffic dumps in cold mode (Offline)
+- Hot mode: Sniffing on your interface specifying a timer
+- Cold mode: Analyzing traffic dumps
 
 The tool is very simple in its operation and is driven by arguments:
 
-- Interface. Specifying the network interface on which sniffing will be performed
-- Timer. Time during which traffic analysis will be performed
+- Interface: Specifying the network interface on which sniffing will be performed
+- Timer: Time during which traffic analysis will be performed
 - Output pcap: Above will record the listened traffic to pcap file, its name you specify yourself
 - Input pcap: The tool takes an already prepared .pcap as input and looks for protocols in it
 
@@ -72,10 +82,9 @@ options:
 
 
 
-## Traffic Sniffing Demo
+## Traffic Sniffing Demo (Hot mode)
 
-![](/demos/sniffing-demo.gif)
-> Sorry for not the best quality, Github has file size limits on uploads
+![](/demos/hotmode.gif)
 
 ---
 
@@ -91,7 +100,7 @@ When Above detects a protocol, it outputs the necessary information to indicate 
 
 - **Technical information** - Required information for the attacker, sender IP addresses, FHRP group IDs, OSPF/EIGRP domains, etc.
 
-  > This information can also be used by a security engineer to improve network security
+- **Mitigation** - Recommendations for fixing the security problem
 
 ---
 
@@ -128,31 +137,32 @@ Above requires at least an interface and a timer at startup. Choose the timer fr
 ```bash
 caster@kali:~$ sudo above --interface eth0 --timer 120
 ```
+> To stop traffic sniffing, press CTRL + С
+
 If you need to record the sniffed traffic, use the `--output-pcap` argument
 
 ```bash
 caster@kali:~$ sudo above --interface eth0 --timer 120 --output-pcap dump.pcap
 ```
+> By specifying only the --interface and --output-pcap - Above will also be able to start, without a timer
 
 If you already have some recorded traffic, you can use the `--input-pcap` argument to look for potential security issues
 
-```
+```bash
 caster@kali:~$ above --input-pcap dump.pcap
 ```
 
-## PCAP Analyzing Demo
+> WARNING! Above is not designed to work with tunnel interfaces (L3) due to the use of filters for L2 protocols. Tool on tunneled L3 interfaces may not work properly.
 
-![](/demos/pcap-analyzing.gif)
-> Sorry for not the best quality, Github has file size limits on uploads
+## Pcap Analyzing Demo (Cold mode)
 
-# Suggestions
+![](/demos/coldmode.gif)
 
-If you find bugs in this tool or have suggestions on how to improve this tool, feel free to email me personally!
 
 # Outro
 
-This tool is dedicated to the track "A View From Above (Remix)" performed by KOAN Sound.
-This track was all the inspiration for me during the process of working on this tool.
+I wrote this tool because of the track "A View From Above (Remix)" by KOAN Sound.
+This track was everything to me when I was working on this sniffer.
 
 ---
 
