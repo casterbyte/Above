@@ -39,17 +39,6 @@ DHCPv6 (Dynamic Host Configuration Protocol v6)
 SSDP (Simple Service Discovery Protocol)
 MNDP (MikroTik Neighbor Discovery Protocol)
 ```
-```
-L2 (CDP, DTP, LLDP, 802.1Q Frames, STP)
-Attack Impact: Information Gathering, Partial MITM, VLAN Hopping
-
-L3 (OSPF, EIGRP, HSRP, VRRP)
-Attack Impact: Subnets Discovery, MITM
-
-L7 (SSDP, LLMNR, NBT-NS, MDNS)
-Attack Impact: Windows machines poisoning (Credentials Interception, NetNTLMv2-SSP), Coerce Attacks
-```
-
 > All protocols are analyzed simultaneously due to the threads design
 
 ## Operating Mechanism
