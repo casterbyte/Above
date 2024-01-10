@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="above",
-    version="2.2",
+    version="2.3",
     url="https://github.com/wearecaster/above",
     author="Caster",
     author_email="casterinfosec@gmail.com",
@@ -11,7 +11,7 @@ setup(
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     license="Apache-2.0",
-    keywords=['information gathering', 'penetration testing', 'network security', 'network sniffer'],
+    keywords=['penetration testing', 'network security', 'network sniffer'],
     packages=find_packages(),
     install_requires=[
         'scapy',
