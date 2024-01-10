@@ -2,7 +2,7 @@
 
 Invisible protocol sniffer for finding vulnerabilities in the network hardware. Designed for pentesters and security engineers.
 
-![](/cover/tool-cover.png)
+![](/cover/tool_cover.png)
 
 # Disclaimer
 
