@@ -83,13 +83,13 @@ The information obtained will be useful not only to the attacker, but also to th
 
 When Above detects a protocol, it outputs the necessary information to indicate the attack vector or security issue:
 
-- **Impact** - What kind of attack can be performed on this protocol;
+- **Impact:** What kind of attack can be performed on this protocol;
 
-- **Tools** - What tool can be used to launch an attack;
+- **Tools:** - What tool can be used to launch an attack;
 
-- **Technical information** - Required information for the attacker, sender IP addresses, FHRP group IDs, OSPF/EIGRP domains, etc.
+- **Technical information:** - Required information for the attacker, sender IP addresses, FHRP group IDs, OSPF/EIGRP domains, etc.
 
-- **Mitigation** - Recommendations for fixing the security problem
+- **Mitigation:** - Recommendations for fixing the security problems
 
 ---
 
