@@ -16,7 +16,7 @@ Invisible protocol sniffer for finding vulnerabilities in the network hardware. 
 
 Above is a invisible network sniffer for finding vulnerabilities in network equipment. It is based entirely on network traffic analysis, so it does not make any noise on the air. He's invisible. Completely based on the Scapy library.
 
-> Above allows pentesters to automate the process of finding vulnerabilities in network hardware. Discovery protocols, dynamic routing, FHRP, STP, DP, etc.
+> Above allows pentesters to automate the process of finding vulnerabilities in network hardware. Discovery protocols, dynamic routing, FHRP, STP, LLMNR/NBT-NS, etc.
 
 ## Supported protocols
 
