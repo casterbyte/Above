@@ -98,6 +98,7 @@ When Above detects a protocol, it outputs the necessary information to indicate 
 Above is very easy to install using **setup.py**
 
 ```bash
+caster@kali:~$ sudo apt-get install python3-scapy python3-colorama
 caster@kali:~$ git clone https://github.com/wearecaster/Above
 caster@kali:~$ cd Above/
 caster@kali:~/Above$ sudo python3 setup.py install 
