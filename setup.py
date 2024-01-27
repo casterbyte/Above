@@ -4,7 +4,7 @@ setup(
     name="above",
     version="2.3",
     url="https://github.com/wearecaster/above",
-    author="Caster",
+    author="Magama Bazarov",
     author_email="casterinfosec@gmail.com",
     scripts=['above.py'],
     description="Invisible Network Protocol Sniffer",
