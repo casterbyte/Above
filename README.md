@@ -98,7 +98,7 @@ When Above detects a protocol, it outputs the necessary information to indicate 
 Above is very easy to install using **setup.py**
 
 ```bash
-cursed@kali:~$ sudo apt-get install python3-scapy python3-colorama
+cursed@kali:~$ sudo apt-get install python3-scapy python3-colorama python3-setuptools
 cursed@kali:~$ git clone https://github.com/cursedpkt/Above
 cursed@kali:~$ cd Above/
 cursed@kali:~/Above$ sudo python3 setup.py install
