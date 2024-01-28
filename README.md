@@ -101,7 +101,7 @@ Above is very easy to install using **setup.py**
 cursed@kali:~$ sudo apt-get install python3-scapy python3-colorama
 cursed@kali:~$ git clone https://github.com/cursedpkt/Above
 cursed@kali:~$ cd Above/
-cursedaster@kali:~/Above$ sudo python3 setup.py install 
+cursed@kali:~/Above$ sudo python3 setup.py install
 ```
 
 > The development of this version of Above was based on Python version **3.11.6**, Scapy version **2.5.0.dev212**
