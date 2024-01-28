@@ -58,7 +58,7 @@ def centered_text(text):
 print(centered_text("Invisible network protocol sniffer"))
 print(centered_text("Designed for pentesters and security engineers"))
 print(centered_text(Fore.YELLOW + "Version 2.3, Codename: Radiant"))
-print(centered_text(Fore.YELLOW + "Author: Magama Bazarov, <casterinfosec@gmail.com>"))
+print(centered_text(Fore.YELLOW + "Author: Magama Bazarov, <cursedpkt@gmail.com>"))
 
 
 # CDP Detection

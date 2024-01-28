@@ -3,9 +3,9 @@ from setuptools import setup, find_packages
 setup(
     name="above",
     version="2.3",
-    url="https://github.com/wearecaster/above",
+    url="https://github.com/cursedpkt/above",
     author="Magama Bazarov",
-    author_email="casterinfosec@gmail.com",
+    author_email="cursedpkt@gmail.com",
     scripts=['above.py'],
     description="Invisible Network Protocol Sniffer",
     long_description=open('README.md').read(),

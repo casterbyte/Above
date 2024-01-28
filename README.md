@@ -98,10 +98,10 @@ When Above detects a protocol, it outputs the necessary information to indicate 
 Above is very easy to install using **setup.py**
 
 ```bash
-caster@kali:~$ sudo apt-get install python3-scapy python3-colorama
-caster@kali:~$ git clone https://github.com/wearecaster/Above
-caster@kali:~$ cd Above/
-caster@kali:~/Above$ sudo python3 setup.py install 
+cursed@kali:~$ sudo apt-get install python3-scapy python3-colorama
+cursed@kali:~$ git clone https://github.com/cursedpkt/Above
+cursed@kali:~$ cd Above/
+cursedaster@kali:~/Above$ sudo python3 setup.py install 
 ```
 
 > The development of this version of Above was based on Python version **3.11.6**, Scapy version **2.5.0.dev212**
@@ -119,27 +119,27 @@ First, it's worth switching the interface to promiscuous mode
 > Above requires root access for sniffing
 
 ```bash
-caster@kali:~$ sudo ip link set eth0 promisc on 
+cursed@kali:~$ sudo ip link set eth0 promisc on 
 ```
 
 Above requires at least an interface and a timer at startup. Choose the timer from your calculations.
 
 ```bash
-caster@kali:~$ sudo above --interface eth0 --timer 120
+cursed@kali:~$ sudo above --interface eth0 --timer 120
 ```
 > To stop traffic sniffing, press CTRL + С
 
 If you need to record the sniffed traffic, use the `--output-pcap` argument
 
 ```bash
-caster@kali:~$ sudo above --interface eth0 --timer 120 --output-pcap dump.pcap
+cursed@kali:~$ sudo above --interface eth0 --timer 120 --output-pcap dump.pcap
 ```
 > By specifying only the --interface and --output-pcap - Above will also be able to start, without a timer
 
 If you already have some recorded traffic, you can use the `--input-pcap` argument to look for potential security issues
 
 ```bash
-caster@kali:~$ above --input-pcap dump.pcap
+cursed@kali:~$ above --input-pcap dump.pcap
 ```
 
 > WARNING! Above is not designed to work with tunnel interfaces (L3) due to the use of filters for L2 protocols. Tool on tunneled L3 interfaces may not work properly.
