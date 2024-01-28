@@ -5,7 +5,7 @@ setup(
     version="2.3",
     url="https://github.com/cursedpkt/above",
     author="Magama Bazarov",
-    author_email="cursedpkt@gmail.com",
+    author_email="cursed@exploit.org",
     scripts=['above.py'],
     description="Invisible Network Protocol Sniffer",
     long_description=open('README.md').read(),
