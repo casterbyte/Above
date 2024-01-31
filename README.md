@@ -95,7 +95,12 @@ When Above detects a protocol, it outputs the necessary information to indicate 
 
 # Installation
 
-Above is very easy to install using **setup.py**
+You can install Above directly from the Kali Linux repositories
+```bash
+cursed@kali:~$ sudo apt update && sudo apt install above
+```
+
+Or...
 
 ```bash
 cursed@kali:~$ sudo apt-get install python3-scapy python3-colorama python3-setuptools
