@@ -2,7 +2,7 @@
 
 Invisible protocol sniffer for finding vulnerabilities in the network hardware. Designed for pentesters and security engineers.
 
-![](/cover/tool_cover.png)
+![](/cover/kali-above.svg)
 
 # Disclaimer
 
