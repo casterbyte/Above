@@ -1,4 +1,4 @@
-# Above v2.3 (Codename: Radiant)
+# Above v2.3 (Codename: Radiant) (Kali Linux)
 
 Invisible protocol sniffer for finding vulnerabilities in the network hardware. Designed for pentesters and security engineers.
 
