@@ -95,6 +95,7 @@ When Above detects a protocol, it outputs the necessary information to indicate 
 
 # Installation
 
+### Linux
 You can install Above directly from the Kali Linux repositories
 ```bash
 cursed@kali:~$ sudo apt update && sudo apt install above
@@ -108,6 +109,22 @@ cursed@kali:~$ git clone https://github.com/cursedpkt/Above
 cursed@kali:~$ cd Above/
 cursed@kali:~/Above$ sudo python3 setup.py install
 ```
+
+### macOS:
+```bash
+# Install python3 first
+brew install python3
+# Then install required dependencies
+sudo pip3 install scapy colorama setuptools
+
+# Clone the repo
+git clone https://github.com/cursedpkt/Above
+cd Above/
+sudo python3 setup.py install
+```
+
+Don't forget to **deactivate** your firewall on macOS!
+#### Settings > Network > Firewall.
 
 > The development of this version of Above was based on Python version **3.11.6**, Scapy version **2.5.0.dev212**
 
@@ -123,9 +140,20 @@ First, it's worth switching the interface to promiscuous mode
 
 > Above requires root access for sniffing
 
+### Linux
 ```bash
 cursed@kali:~$ sudo ip link set eth0 promisc on 
 ```
+
+### macOS
+For Wi-Fi:
+Remember to replace `en1` with your target interface.
+```bash
+/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport en1 sniff
+```
+
+For other:
+There is no need to enable promiscuous mode manually for ethernet interfaces, it is done automatically.
 
 Above requires at least an interface and a timer at startup. Choose the timer from your calculations.
 
