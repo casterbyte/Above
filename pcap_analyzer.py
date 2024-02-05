@@ -148,7 +148,7 @@ def analyze_pcap(pcap_file):
             print(Fore.GREEN + Style.BRIGHT + "[*] Crypt Data Length: " + Fore.WHITE + Style.BRIGHT + str(authdatalength = ospf[0][OSPF_Hdr].authdatalen))
             print(Fore.GREEN + Style.BRIGHT + "[*] Crypt Auth Sequence Number: " + Fore.WHITE + Style.BRIGHT + str(ospf[0][OSPF_Hdr].seq))
     # Mitigation    
-    print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable passive interfaces, use cryptographic authentication, filter OSPF traffic with ACLs")
+        print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable passive interfaces, use cryptographic authentication, filter OSPF traffic with ACLs")
 
     if hsrp:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
