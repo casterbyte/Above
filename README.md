@@ -128,6 +128,13 @@ sudo python3 setup.py install
 Don't forget to **deactivate** your firewall on macOS!
 #### Settings > Network > Firewall.
 
+### Windows:
+```
+pip3 install scapy
+pip3 install colorama
+python Above.py --interface <your_interface> --timer <sec>
+```
+
 > The development of this version of Above was based on Python version **3.11.6**, Scapy version **2.5.0.dev212**
 
 # Windows Compatibility
