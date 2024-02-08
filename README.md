@@ -1,6 +1,6 @@
 # Above (Kali Linux)
 
-Invisible protocol sniffer for finding vulnerabilities in the network hardware. Designed for pentesters and security engineers.
+Invisible protocol sniffer for finding vulnerabilities in the network. Designed for pentesters and security engineers.
 
 Author: Magama Bazarov
 
