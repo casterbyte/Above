@@ -100,16 +100,16 @@ When Above detects a protocol, it outputs the necessary information to indicate 
 ### Linux
 You can install Above directly from the Kali Linux repositories
 ```bash
-cursed@kali:~$ sudo apt update && sudo apt install above
+caster@kali:~$ sudo apt update && sudo apt install above
 ```
 
 Or...
 
 ```bash
-cursed@kali:~$ sudo apt-get install python3-scapy python3-colorama python3-setuptools
-cursed@kali:~$ git clone https://github.com/cursedpkt/Above
-cursed@kali:~$ cd Above/
-cursed@kali:~/Above$ sudo python3 setup.py install
+caster@kali:~$ sudo apt-get install python3-scapy python3-colorama python3-setuptools
+caster@kali:~$ git clone https://github.com/cursedpkt/Above
+caster@kali:~$ cd Above/
+caster@kali:~/Above$ sudo python3 setup.py install
 ```
 
 ### macOS:
@@ -153,7 +153,7 @@ First, it's worth switching the interface to promiscuous mode
 
 ### Linux
 ```bash
-cursed@kali:~$ sudo ip link set eth0 promisc on 
+caster@kali:~$ sudo ip link set eth0 promisc on 
 ```
 
 ### macOS
@@ -169,21 +169,21 @@ There is no need to enable promiscuous mode manually for ethernet interfaces, it
 Above requires at least an interface and a timer at startup. Choose the timer from your calculations.
 
 ```bash
-cursed@kali:~$ sudo above --interface eth0 --timer 120
+caster@kali:~$ sudo above --interface eth0 --timer 120
 ```
 > To stop traffic sniffing, press CTRL + С
 
 If you need to record the sniffed traffic, use the `--output-pcap` argument
 
 ```bash
-cursed@kali:~$ sudo above --interface eth0 --timer 120 --output-pcap dump.pcap
+caster@kali:~$ sudo above --interface eth0 --timer 120 --output-pcap dump.pcap
 ```
 > By specifying only the --interface and --output-pcap - Above will also be able to start, without a timer
 
 If you already have some recorded traffic, you can use the `--input-pcap` argument to look for potential security issues
 
 ```bash
-cursed@kali:~$ above --input-pcap dump.pcap
+caster@kali:~$ above --input-pcap dump.pcap
 ```
 
 > WARNING! Above is not designed to work with tunnel interfaces (L3) due to the use of filters for L2 protocols. Tool on tunneled L3 interfaces may not work properly.
