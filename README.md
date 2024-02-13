@@ -107,7 +107,7 @@ Or...
 
 ```bash
 caster@kali:~$ sudo apt-get install python3-scapy python3-colorama python3-setuptools
-caster@kali:~$ git clone https://github.com/cursedpkt/Above
+caster@kali:~$ git clone https://github.com/casterbyte/Above
 caster@kali:~$ cd Above/
 caster@kali:~/Above$ sudo python3 setup.py install
 ```
@@ -120,7 +120,7 @@ brew install python3
 sudo pip3 install scapy colorama setuptools
 
 # Clone the repo
-git clone https://github.com/cursedpkt/Above
+git clone https://github.com/casterbyte/Above
 cd Above/
 sudo python3 setup.py install
 ```
@@ -130,7 +130,7 @@ Don't forget to **deactivate** your firewall on macOS!
 
 ### Windows:
 ```
-P:\>git clone https://github.com/cursedpkt/above
+P:\>git clone https://github.com/casterbyte/above
 P:\>cd above/
 P:\above>pip3 install scapy
 P:\above>pip3 install colorama
