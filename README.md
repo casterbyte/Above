@@ -1,4 +1,4 @@
-# Above (Kali Linux)
+# Above
 
 Invisible protocol sniffer for finding vulnerabilities in the network. Designed for pentesters and security engineers.
 
