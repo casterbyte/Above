@@ -3,6 +3,7 @@
 from scapy.all import sniff, wrpcap, Ether, Dot1Q, IP, HSRP, HSRPmd5, VRRP, VRRPv3, STP, IPv6, AH, SNAP, LLMNRQuery, Dot3
 from scapy.contrib.eigrp import EIGRP
 from scapy.contrib.ospf import OSPF_Hdr
+from scapy.contrib.macsec import MACsec, MACsecSCI
 from scapy.contrib.cdp import CDPMsgDeviceID, CDPMsgSoftwareVersion, CDPMsgPlatform, CDPMsgPortID, CDPAddrRecordIPv4
 from scapy.contrib.lldp import LLDPDUSystemName, LLDPDUSystemDescription, LLDPDUPortID, LLDPDUManagementAddress # Connecting only the necessary Scapy components
 import colorama
@@ -57,15 +58,30 @@ def centered_text(text):
 
 print(centered_text("Invisible network protocol sniffer"))
 print(centered_text("Designed for pentesters and security engineers"))
-print(centered_text(Fore.YELLOW + "Version 2.3, Codename: Radiant"))
-print(centered_text(Fore.YELLOW + "Author: Magama Bazarov, <cursed@exploit.org>"))
+print(centered_text(Fore.YELLOW + "Version 2.4, Codename: My Own Summer (Shove It)"))
+print(centered_text(Fore.YELLOW + "Author: Magama Bazarov, <caster@exploit.org>"))
+
+# MACSec Detection
+def detect_macsec(interface, timer, output_file):
+    macsec_frame = sniff(filter="ether proto 0x88e5", count=1, timeout=timer, iface=interface)
+    if not macsec_frame:
+        return 0
+    if output_file:
+        save_to_pcap(macsec_frame, output_file)
+    print(Fore.WHITE + Style.BRIGHT + '-' * 50)
+    print(Fore.WHITE + Style.BRIGHT + "[+] Detected MACSec")
+    print(Fore.YELLOW + Style.BRIGHT + "[+] The network may be using 802.1X, keep that in mind")
+    try:
+        print(Fore.GREEN + Style.BRIGHT + "[*] System Identifier: " + Fore.WHITE + Style.BRIGHT + macsec_frame[0][MACsec][MACsecSCI].system_identifier)
+    except:
+        print(Fore.GREEN + Style.BRIGHT + "[*] System Identifier: " + Fore.WHITE + Style.BRIGHT + "Not Found")
 
 
 # CDP Detection
 def detect_cdp(interface, timer, output_file):
     cdp_detected = False # Flag to track if CDP frame has been detected
     while True:
-        cdp_frame = sniff(filter="ether dst 01:00:0c:cc:cc:cc", count=1, timeout=timer, iface=interface)
+        cdp_frame = sniff(filter="llc and ether dst 01:00:0c:cc:cc:cc", count=1, timeout=timer, iface=interface)
         if not cdp_frame:
             return 0
         if output_file:
@@ -74,7 +90,7 @@ def detect_cdp(interface, timer, output_file):
             cdp_detected = True  # Set the flag to True to indicate that CDP frame has been detected
             print(Fore.WHITE + Style.BRIGHT + '-' * 50)
             print(Fore.WHITE + Style.BRIGHT + "[+] Detected CDP Protocol")
-            print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Information Gathering, DoS (CDP Flood)")
+            print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Information Gathering, DoS (CDP Flood)")
             print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Above, Wireshark, Yersinia")
             print(Fore.GREEN + Style.BRIGHT + "[*] Hostname: " + Fore.WHITE + Style.BRIGHT + str(cdp_frame[0][CDPMsgDeviceID].val.decode()))
             print(Fore.GREEN + Style.BRIGHT + "[*] OS Version: " + Fore.WHITE + Style.BRIGHT + str(cdp_frame[0][CDPMsgSoftwareVersion].val.decode()))
@@ -91,7 +107,7 @@ def detect_cdp(interface, timer, output_file):
 def detect_dtp(interface, timer, output_file):
     dtp_detected = False  # Flag to track if DTP frame has been detected
     while True:
-        dtp_frame = sniff(filter="ether dst 01:00:0c:cc:cc:cc", count=1, iface=interface, timeout=timer)
+        dtp_frame = sniff(filter="llc and ether dst 01:00:0c:cc:cc:cc", count=1, iface=interface, timeout=timer)
         if not dtp_frame:
             return 0
         if output_file:
@@ -100,11 +116,12 @@ def detect_dtp(interface, timer, output_file):
             dtp_detected = True  # Set the flag to True to indicate that DTP frame has been detected
             print(Fore.WHITE + Style.BRIGHT + '-' * 50)
             print(Fore.WHITE + Style.BRIGHT + "[+] Detected DTP Protocol")
-            print(Fore.GREEN + Style.BRIGHT + "[*] Impact: " + Fore.WHITE + Style.BRIGHT + "VLAN Segmentation Bypass")
+            print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "VLAN Segmentation Bypass")
             print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Yersinia, Scapy")
             print(Fore.GREEN + Style.BRIGHT + "[*] DTP Neighbor MAC: " + Fore.WHITE + Style.BRIGHT + str(dtp_frame[0][Dot3].src))
             # Mitigation
             print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Disable DTP on the switch ports")
+
 
 # LLDP Detection
 def detect_lldp(interface, timer, output_file):
@@ -115,7 +132,7 @@ def detect_lldp(interface, timer, output_file):
         save_to_pcap(lldp_frame, output_file)
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected LLDP Protocol")
-    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Information Gathering")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Information Gathering")
     print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Above, Wireshark")
     try:
         print (Fore.GREEN + Style.BRIGHT + "[*] Hostname: " + Fore.WHITE + Style.BRIGHT + str(lldp_frame[0][LLDPDUSystemName].system_name.decode()))
@@ -137,7 +154,7 @@ def detect_lldp(interface, timer, output_file):
         print (Fore.GREEN + Style.BRIGHT + "[*] IP Address: " + Fore.WHITE + Style.BRIGHT + "Not Found")
     print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Disable LLDP on endpoint ports. Do not disrupt the IP phones, be careful")
     
-# 802.1Q Tags
+# 802.1Q Tags Detection
 def detect_dot1q(interface, timer):
     # To search for unique IDs without duplication
     vlan_ids = set()
@@ -152,7 +169,7 @@ def detect_dot1q(interface, timer):
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected 802.1Q Tags")
     print(Fore.GREEN + Style.BRIGHT + "[+] Found VLAN IDs:" + Fore.WHITE + Style.BRIGHT + f" {', '.join(str(vlan_id) for vlan_id in vlan_ids)}")
-    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "VLAN Segmentation Bypass")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "VLAN Segmentation Bypass")
     print(Fore.YELLOW + Style.BRIGHT + "[!] Using the IDs found, create the necessary virtual interfaces using Linux tools")
     # Mitigation
     print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Carefully check the configuration of trunk ports")
@@ -173,7 +190,7 @@ def detect_ospf(interface, timer, output_file):
         return string_value
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected OSPF Protocol")
-    print(Fore.GREEN + Style.BRIGHT + "[+] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Subnets Discovery, Blackhole, Evil Twin")
+    print(Fore.GREEN + Style.BRIGHT + "[+] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Subnets Discovery, Blackhole, Evil Twin")
     print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Loki, Scapy, FRRouting")
     print(Fore.GREEN + Style.BRIGHT + "[*] OSPF Area ID: " + Fore.WHITE + Style.BRIGHT + str(ospfpacket[0][OSPF_Hdr].area))
     print(Fore.GREEN + Style.BRIGHT + "[*] OSPF Neighbor IP: " + Fore.WHITE + Style.BRIGHT + str(ospfpacket[0][OSPF_Hdr].src))
@@ -207,7 +224,7 @@ def detect_eigrp(interface, timer, output_file):
             save_to_pcap(eigrppacket, output_file)
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected EIGRP Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Subnets Discovery, Blackhole, Evil Twin")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Subnets Discovery, Blackhole, Evil Twin")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Loki, Scapy, FRRouting")
     if eigrppacket[0].haslayer("EIGRPAuthData"):
         print(Fore.YELLOW + Style.BRIGHT + "[!] There is EIGRP Authentication")
@@ -237,7 +254,7 @@ def detect_hsrp(interface, timer, output_file):
             print(Fore.WHITE + Style.BRIGHT + '-' * 50)
             print(Fore.WHITE + Style.BRIGHT + "[+] Detected HSRP Protocol")
             print(Fore.GREEN + Style.BRIGHT + "[*] HSRP active router priority: " + Fore.WHITE + Style.BRIGHT + str((hsrp_packet[0].priority)))
-            print(Fore.GREEN + Style.BRIGHT + "[+] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "MITM")
+            print(Fore.GREEN + Style.BRIGHT + "[+] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MITM")
             print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Loki, Scapy, Yersinia")
             print(Fore.GREEN + Style.BRIGHT + "[*] HSRP Group Number: " + Fore.WHITE + Style.BRIGHT + str(hsrp_packet[0][HSRP].group))
             print(Fore.GREEN + Style.BRIGHT + "[+] HSRP Virtual IP Address: " + Fore.WHITE + Style.BRIGHT + str(hsrp_packet[0][HSRP].virtualIP))
@@ -253,7 +270,25 @@ def detect_hsrp(interface, timer, output_file):
                     print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: " + Fore.WHITE + Style.BRIGHT + "Plaintext Phrase: " + simplehsrppass)
             # Mitigation        
             print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use priority 255, use cryptographic authentication, filtering HSRP traffic with ACLs")
-            
+
+# GLBP Detection
+def detect_glbp(interface, timer, output_file):
+    glbp_packet = sniff(filter="ip dst 224.0.0.102 and udp port 3222", count=1, timeout=timer, iface=interface)
+    if not glbp_packet:
+        return 0
+    if output_file:
+        save_to_pcap(glbp_packet, output_file)
+    print(Fore.WHITE + Style.BRIGHT + '-' * 50)
+    print(Fore.WHITE + Style.BRIGHT + "[+] Detected GLBP Protocol")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MITM")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Loki")
+    print(Fore.YELLOW + Style.BRIGHT + "[!] GLBP has not yet been implemented by Scapy")
+    print(Fore.YELLOW + Style.BRIGHT + "[!] Check AVG router priority values manually using Wireshark")
+    print(Fore.YELLOW + Style.BRIGHT + "[!] If the AVG router's priority value is less than 255, you have a chance of launching a MITM attack.")
+    print(Fore.GREEN + Style.BRIGHT + "[*] GLBP Sender MAC: " + Fore.WHITE + Style.BRIGHT + str(glbp_packet[0][Ether].src))
+    print(Fore.GREEN + Style.BRIGHT + "[*] GLBP Sender IP: " + Fore.WHITE + Style.BRIGHT + str(glbp_packet[0][IP].src))
+    print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use priority 255, use cryptographic authentication, filtering GLBP traffic with ACLs. However, given the specifics of the GLBP setting (AVG/AVF)")
+
 # VRRP Detection (v2 & v3)
 def detect_vrrp(interface, timer, output_file):
     vrrp_packet = sniff(filter="ip dst 224.0.0.18 or ip proto 112", count=1, timeout=timer, iface=interface)
@@ -278,7 +313,7 @@ def detect_vrrp(interface, timer, output_file):
             print(Fore.WHITE + Style.BRIGHT + "[+] Detected VRRPv3 Protocol")
             if vrrp_packet[0][VRRPv3].priority <= 255: # The problem is that usually the configuration does not allow you to set the priority to 255 on the hardware, only 254.
                 print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv3 master router priority: " + Fore.WHITE + Style.BRIGHT + str(vrrp_packet[0][VRRPv3].priority))
-                print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "MITM")
+                print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MITM")
                 print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Scapy, Loki")
                 print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv3 Group Number: " + Fore.WHITE + Style.BRIGHT + str(vrrp_packet[0][VRRPv3].vrid))
                 print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv3 Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(vrrp_packet[0][IP].src))
@@ -291,7 +326,7 @@ def detect_vrrp(interface, timer, output_file):
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected VRRPv2 Protocol")
         if vrrp_packet[0][VRRP].priority <= 255: # The problem is that usually the configuration does not allow you to set the priority to 255 on the hardware, only 254.
             print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv2 master router priority: " + Fore.WHITE + Style.BRIGHT + str(vrrp_packet[0][VRRP].priority))
-            print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "MITM")
+            print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MITM")
             print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Scapy, Loki")
         # VRRP Null Auth    
         if vrrp_packet[0][VRRP].authtype == 0:
@@ -318,7 +353,7 @@ def detect_stp(interface, timer, output_file):
         save_to_pcap(stp_frame, output_file)
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected STP Protocol")
-    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Partial MITM")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Partial MITM")
     print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Yersinia, Scapy")
     print(Fore.GREEN + Style.BRIGHT + "[*] STP Root Switch MAC: " + Fore.WHITE + Style.BRIGHT + str(stp_frame[0][STP].rootmac))
     print(Fore.GREEN + Style.BRIGHT + "[*] STP Root ID: " + Fore.WHITE + Style.BRIGHT + str(stp_frame[0][STP].rootid))
@@ -335,7 +370,7 @@ def detect_llmnr(interface, timer, output_file):
         save_to_pcap(llmnr_packet, output_file)
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected LLMNR Protocol")
-    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "LLMNR Spoofing, Credentials Interception")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "LLMNR Spoofing, Credentials Interception")
     print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Responder")
     try:
         print(Fore.GREEN + Style.BRIGHT + "[*] LLMNR Query Name: " + Fore.WHITE + Style.BRIGHT + str(llmnr_packet[0][LLMNRQuery]["DNS Question Record"].qname.decode()))
@@ -360,7 +395,7 @@ def detect_nbns(interface, timer, output_file):
         save_to_pcap(nbns_packet, output_file)
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected NBT-NS Protocol")
-    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "NBT-NS Spoofing, Credentials Interception")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "NBT-NS Spoofing, Credentials Interception")
     print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Responder")
     try:
         print(Fore.GREEN + Style.BRIGHT + "[*] NBT-NS Question Name: " + Fore.WHITE + Style.BRIGHT + str(nbns_packet[0]["NBNS registration request"].QUESTION_NAME.decode()))
@@ -384,9 +419,10 @@ def detect_mdns(interface, timer, output_file):
         save_to_pcap(mdns_packet, output_file)
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected MDNS Protocol")
-    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "MDNS Spoofing, Credentials Interception")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MDNS Spoofing, Credentials Interception")
     print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Responder")
-    # There is no Query Name output here because at the time of Above v2.3 - Scapy does not know how to handle MDNS packets
+    print(Fore.YELLOW + Style.BRIGHT + "[*] MDNS Spoofing works specifically against Windows machines")
+    print(Fore.YELLOW + Style.BRIGHT + "[*] You cannot get NetNTLMv2-SSP from Apple devices")
     print(Fore.GREEN + Style.BRIGHT + "[*] MDNS Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(mdns_packet[0][IP].src))
     print(Fore.GREEN + Style.BRIGHT + "[*] MDNS Speaker MAC: " + Fore.WHITE + Style.BRIGHT + str(mdns_packet[0][Ether].src))
     # Mitigation
@@ -401,7 +437,7 @@ def detect_dhcpv6(interface, timer, output_file):
         save_to_pcap(dhcpv6_packet, output_file)
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected DHCPv6 Protocol")
-    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "DNS IPv6 Spoofing")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "DNS IPv6 Spoofing")
     print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "mitm6")
     print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(dhcpv6_packet[0][IPv6].src))
     print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker MAC: " + Fore.WHITE + Style.BRIGHT + str(dhcpv6_packet[0][Ether].src))
@@ -417,9 +453,11 @@ def detect_ssdp(interface, timer, output_file):
         save_to_pcap(ssdp_packet, output_file)
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected SSDP Protocol")
-    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Credentials Interception, MITM")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Credentials Interception")
     print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "evil-ssdp")
     print(Fore.GREEN + Style.BRIGHT + "[!] The attack may seem too theoretical")
+    print(Fore.YELLOW + Style.BRIGHT + "[*] SSDP Spoofing works specifically against Windows machines")
+    print(Fore.YELLOW + Style.BRIGHT + "[*] You cannot get NetNTLMv2-SSP from Apple devices")
     print(Fore.GREEN + Style.BRIGHT + "[*] SSDP Speaker MAC: " + Fore.WHITE + Style.BRIGHT + str(ssdp_packet[0][Ether].src))
     print(Fore.GREEN + Style.BRIGHT + "[*] SSDP Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(ssdp_packet[0][IP].src))
     # Mitigation
@@ -434,7 +472,7 @@ def detect_mndp(interface, timer, output_file):
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected MNDP Protocol")
     print(Fore.WHITE + Style.BRIGHT + "[*] MikroTik device may have been detected")
-    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Information Gathering")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Information Gathering")
     print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Wireshark")
     print(Fore.GREEN + Style.BRIGHT + "[*] MNDP Speaker MAC: " + Fore.WHITE + Style.BRIGHT + str(mndp_packet[0][Ether].src))
     print(Fore.GREEN + Style.BRIGHT + "[*] MNDP Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(mndp_packet[0][IP].src))
@@ -442,8 +480,8 @@ def detect_mndp(interface, timer, output_file):
     print(Fore.YELLOW + Style.BRIGHT + "[*] The MNDP protocol is not yet implemented in Scapy")
     # Mitigation
     print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Disable MNDP on endpoint ports")
+
     
-        
 output_lock = threading.Lock()
 exit_flag = False
 output_message_displayed = False
@@ -472,9 +510,11 @@ signal.signal(signal.SIGINT, signal_handler)
 # Protocols sniffing, threads
 def start_sniffing(interface, timer, output_file):
     print(Fore.WHITE + "\n[+] Start Sniffing...")
-    print(Fore.WHITE + "\n[+] Searching for L2/L3 Protocols...")
+    print(Fore.WHITE + "\n[+] Searching for L2/L3/L7 Protocols...")
     print(Fore.WHITE +"[*] The specified timer applies to all protocols")
     print(Fore.GREEN + "[*] After the protocol is detected - all necessary information about it will be displayed")
+    print(Fore.YELLOW + "[*] Sniffer is not recommended to run on TUN interfaces due to the use of L2 filters")
+    macsec_thread = threading.Thread(target=detect_macsec, args=(interface, timer, output_file))
     cdp_thread = threading.Thread(target=detect_cdp, args=(interface, timer, output_file))
     dtp_thread = threading.Thread(target=detect_dtp, args=(interface, timer, output_file))
     lldp_thread = threading.Thread(target=detect_lldp, args=(interface, timer, output_file))
@@ -482,6 +522,7 @@ def start_sniffing(interface, timer, output_file):
     ospf_thread = threading.Thread(target=detect_ospf, args=(interface, timer, output_file))
     eigrp_thread = threading.Thread(target=detect_eigrp, args=(interface, timer, output_file))
     hsrp_thread = threading.Thread(target=detect_hsrp, args=(interface, timer, output_file))
+    glbp_thread = threading.Thread(target=detect_glbp, args=(interface, timer, output_file))
     vrrp_thread = threading.Thread(target=detect_vrrp, args=(interface, timer, output_file))
     stp_thread = threading.Thread(target=detect_stp, args=(interface, timer, output_file))
     llmnr_thread = threading.Thread(target=detect_llmnr, args=(interface, timer, output_file))
@@ -491,7 +532,7 @@ def start_sniffing(interface, timer, output_file):
     ssdp_thread = threading.Thread(target=detect_ssdp, args=(interface, timer, output_file))
     mndp_thread = threading.Thread(target=detect_mndp, args=(interface, timer, output_file))
 
-    threads = [cdp_thread, dtp_thread, lldp_thread, dot1q_thread, ospf_thread, eigrp_thread, hsrp_thread,
+    threads = [macsec_thread, cdp_thread, dtp_thread, lldp_thread, dot1q_thread, ospf_thread, eigrp_thread, hsrp_thread, glbp_thread,
     vrrp_thread, stp_thread, llmnr_thread, nbns_thread, mdns_thread, dhcpv6_thread, ssdp_thread, mndp_thread]
         
     for thread in threads:

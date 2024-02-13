@@ -1,4 +1,5 @@
 from scapy.all import rdpcap, Ether, IP, HSRP, HSRPmd5, VRRP, VRRPv3, STP, IPv6, AH, UDP, LLMNRQuery, Dot3
+from scapy.contrib.macsec import MACsec, MACsecSCI
 from scapy.contrib.eigrp import EIGRP
 from scapy.contrib.ospf import OSPF_Hdr
 from scapy.contrib.cdp import CDPv2_HDR, CDPMsgDeviceID, CDPMsgSoftwareVersion, CDPMsgPlatform, CDPMsgPortID, CDPAddrRecordIPv4
@@ -24,10 +25,13 @@ def extract_protocols(pcap_file):
     dhcpv6_packets = []
     ssdp_packets = []
     mndp_packets = []
-
+    glbp_packets = []
+    macsec_packets = []
     packets = rdpcap(pcap_file)
 
     for packet in packets:
+        if MACsec in packet:
+            macsec_packets.append(packet)
         if LLDPDU in packet: # LLDP Detection
             lldp_packets.append(packet)
         if OSPF_Hdr in packet: # OSPF Detection
@@ -60,17 +64,27 @@ def extract_protocols(pcap_file):
             ssdp_packets.append(packet)
         if IP in packet and UDP in packet and packet[IP].dst == '255.255.255.255' and packet[UDP].dport == 5678: # MNDP Detection
             mndp_packets.append(packet)
+        if IP in packet and UDP in packet and packet[IP].dst == '224.0.0.102' and packet[UDP].dport == 3222: # GLBP Detection
+            glbp_packets.append(packet)
 
     return (ospf_packets, hsrp_packets, eigrp_packets, stp_packets, cdp_packets, dtp_packets, vrrp_packets, llmnr_packets,
-            lldp_packets, nbt_ns_packets, mdns_packets, dhcpv6_packets, ssdp_packets, mndp_packets)
+            lldp_packets, nbt_ns_packets, mdns_packets, dhcpv6_packets, ssdp_packets, mndp_packets, glbp_packets, macsec_packets)
 
 def analyze_pcap(pcap_file):
-    ospf, hsrp, eigrp, stp, cdp, dtp, vrrp, llmnr, lldp, nbt_ns, mdns, dhcpv6, ssdp, mndp = extract_protocols(pcap_file)
+    ospf, hsrp, eigrp, stp, cdp, dtp, vrrp, llmnr, lldp, nbt_ns, mdns, dhcpv6, ssdp, mndp, glbp, macsec = extract_protocols(pcap_file)
 
+    if macsec:
+        print(Fore.WHITE + Style.BRIGHT + '-' * 50)
+        print(Fore.WHITE + Style.BRIGHT + "[+] Detected MACSec")
+        print(Fore.YELLOW + Style.BRIGHT + "[+] The network may be using 802.1X, keep that in mind")
+        try:
+            print(Fore.GREEN + Style.BRIGHT + "[*] System Identifier: " + Fore.WHITE + Style.BRIGHT + macsec[0][MACsec][MACsecSCI].system_identifier)
+        except:
+            print(Fore.GREEN + Style.BRIGHT + "[*] System Identifier: " + Fore.WHITE + Style.BRIGHT + "Not Found")
     if cdp:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected CDP Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Information Gathering, DoS (CDP Flood)")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Information Gathering, DoS (CDP Flood)")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Above, Wireshark, Yersinia")
         print(Fore.GREEN + Style.BRIGHT + "[*] Hostname: " + Fore.WHITE + Style.BRIGHT + str(cdp[0][CDPMsgDeviceID].val.decode()))
         print(Fore.GREEN + Style.BRIGHT + "[*] OS Version: " + Fore.WHITE + Style.BRIGHT + str(cdp[0][CDPMsgSoftwareVersion].val.decode()))
@@ -86,16 +100,19 @@ def analyze_pcap(pcap_file):
     if dtp:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected DTP Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "VLAN Segmentation Bypass")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "VLAN Segmentation Bypass")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Yersinia, Scapy")
-        print(Fore.GREEN + Style.BRIGHT + "[*] DTP Neighbor MAC: " + Fore.WHITE + Style.BRIGHT + str(dtp[0][Dot3].src))
+        try:
+            print(Fore.GREEN + Style.BRIGHT + "[*] DTP Neighbor MAC: " + Fore.WHITE + Style.BRIGHT + str(dtp[0][Dot3].src))
+        except:
+            print(Fore.GREEN + Style.BRIGHT + "[*] DTP Neighbor MAC: " + Fore.WHITE + Style.BRIGHT + "Not Found")
         # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Disable DTP on the switch ports")    
 
     if lldp:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected LLDP Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Information Gathering")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Information Gathering")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Above, Wireshark")
         try:
             print (Fore.GREEN + Style.BRIGHT + "[*] Hostname: " + Fore.WHITE + Style.BRIGHT + str(lldp[0][LLDPDUSystemName].system_name.decode()))
@@ -126,7 +143,7 @@ def analyze_pcap(pcap_file):
             return string_value
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected OSPF Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[+] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Subnets Discovery, Blackhole, Evil Twin")
+        print(Fore.GREEN + Style.BRIGHT + "[+] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Subnets Discovery, Blackhole, Evil Twin")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Loki, Scapy, FRRouting")
         print(Fore.GREEN + Style.BRIGHT + "[*] OSPF Area ID: " + Fore.WHITE + Style.BRIGHT + str(ospf[0][OSPF_Hdr].area))
         print(Fore.GREEN + Style.BRIGHT + "[*] OSPF Neighbor IP: " + Fore.WHITE + Style.BRIGHT + str(ospf[0][OSPF_Hdr].src))
@@ -147,14 +164,14 @@ def analyze_pcap(pcap_file):
             print(Fore.GREEN + Style.BRIGHT + "[*] OSPF Key ID: " + Fore.WHITE + Style.BRIGHT + str(ospf[0][OSPF_Hdr].keyid))
             print(Fore.GREEN + Style.BRIGHT + "[*] Crypt Data Length: " + Fore.WHITE + Style.BRIGHT + str(authdatalength = ospf[0][OSPF_Hdr].authdatalen))
             print(Fore.GREEN + Style.BRIGHT + "[*] Crypt Auth Sequence Number: " + Fore.WHITE + Style.BRIGHT + str(ospf[0][OSPF_Hdr].seq))
-    # Mitigation    
+        # Mitigation    
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable passive interfaces, use cryptographic authentication, filter OSPF traffic with ACLs")
 
     if hsrp:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected HSRP Protocol")
         print(Fore.GREEN + Style.BRIGHT + "[*] HSRP active router priority: " + Fore.WHITE + Style.BRIGHT + str((hsrp[0].priority)))
-        print(Fore.GREEN + Style.BRIGHT + "[+] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "MITM")
+        print(Fore.GREEN + Style.BRIGHT + "[+] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MITM")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Loki, Scapy, Yersinia")
         print(Fore.GREEN + Style.BRIGHT + "[*] HSRP Group Number: " + Fore.WHITE + Style.BRIGHT + str(hsrp[0][HSRP].group))
         print(Fore.GREEN + Style.BRIGHT + "[+] HSRP Virtual IP Address: " + Fore.WHITE + Style.BRIGHT + str(hsrp[0][HSRP].virtualIP))
@@ -189,7 +206,7 @@ def analyze_pcap(pcap_file):
             print(Fore.WHITE + Style.BRIGHT + "[+] Detected VRRPv3 Protocol")
             if vrrp[0][VRRPv3].priority <= 255: # The problem is that usually the configuration does not allow you to set the priority to 255 on the hardware, only 254.
                 print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv3 master router priority: " + Fore.WHITE + Style.BRIGHT + str(vrrp[0][VRRPv3].priority))
-                print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "MITM")
+                print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MITM")
                 print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Scapy, Loki")
                 print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv3 Group Number: " + Fore.WHITE + Style.BRIGHT + str(vrrp[0][VRRPv3].vrid))
                 print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv3 Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(vrrp[0][IP].src))
@@ -202,7 +219,7 @@ def analyze_pcap(pcap_file):
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected VRRPv2 Protocol")
         if vrrp[0][VRRP].priority <= 255: # The problem is that usually the configuration does not allow you to set the priority to 255 on the hardware, only 254.
             print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv2 master router priority: " + Fore.WHITE + Style.BRIGHT + str(vrrp[0][VRRP].priority))
-            print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "MITM")
+            print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MITM")
             print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Scapy, Loki")
         # VRRP Null Auth    
         if vrrp[0][VRRP].authtype == 0:
@@ -223,7 +240,7 @@ def analyze_pcap(pcap_file):
     if eigrp:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected EIGRP Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Subnets Discovery, Blackhole, Evil Twin")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Subnets Discovery, Blackhole, Evil Twin")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Loki, Scapy, FRRouting")
         if eigrp[0].haslayer("EIGRPAuthData"):
             print(Fore.YELLOW + Style.BRIGHT + "[!] There is EIGRP Authentication")
@@ -242,7 +259,7 @@ def analyze_pcap(pcap_file):
     if stp:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected STP Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Partial MITM")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Partial MITM")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Yersinia, Scapy")
         print(Fore.GREEN + Style.BRIGHT + "[*] STP Root Switch MAC: " + Fore.WHITE + Style.BRIGHT + str(stp[0][STP].rootmac))
         print(Fore.GREEN + Style.BRIGHT + "[*] STP Root ID: " + Fore.WHITE + Style.BRIGHT + str(stp[0][STP].rootid))
@@ -253,7 +270,7 @@ def analyze_pcap(pcap_file):
     if llmnr:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected LLMNR Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "LLMNR Spoofing, Credentials Interception")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "LLMNR Spoofing, Credentials Interception")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Responder")
         try:
             print(Fore.GREEN + Style.BRIGHT + "[*] LLMNR Query Name: " + Fore.WHITE + Style.BRIGHT + str(llmnr[0][LLMNRQuery]["DNS Question Record"].qname.decode()))
@@ -272,7 +289,7 @@ def analyze_pcap(pcap_file):
     if nbt_ns:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected NBT-NS Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "NBT-NS Spoofing, Credentials Interception")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "NBT-NS Spoofing, Credentials Interception")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Responder")
         try:
             print(Fore.GREEN + Style.BRIGHT + "[*] NBT-NS Question Name: " + Fore.WHITE + Style.BRIGHT + str(nbt_ns[0]["NBNS registration request"].QUESTION_NAME.decode()))
@@ -290,30 +307,40 @@ def analyze_pcap(pcap_file):
     if mdns:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected MDNS Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "MDNS Spoofing, Credentials Interception")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MDNS Spoofing, Credentials Interception")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Responder")
         # There is no Query Name output here because at the time of Above v2.3 - Scapy does not know how to handle MDNS packets
         print(Fore.GREEN + Style.BRIGHT + "[*] MDNS Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(mdns[0][IP].src))
         print(Fore.GREEN + Style.BRIGHT + "[*] MDNS Speaker MAC: " + Fore.WHITE + Style.BRIGHT + str(mdns[0][Ether].src))
+        print(Fore.YELLOW + Style.BRIGHT + "[*] MDNS Spoofing works specifically against Windows machines")
+        print(Fore.YELLOW + Style.BRIGHT + "[*] You cannot get NetNTLMv2-SSP from Apple devices")
         # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Filter MDNS traffic using VACL/VMAP. Be careful with MDNS filtering, you can disrupt printers, Chromecast, etc. Monitor attacks on IDS")   
 
     if dhcpv6:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected DHCPv6 Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "DNS IPv6 Spoofing")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "DNS IPv6 Spoofing")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "mitm6")
-        print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(dhcpv6[0][IPv6].src))
-        print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker MAC: " + Fore.WHITE + Style.BRIGHT + str(dhcpv6[0][Ether].src))
+        try:
+            print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(dhcpv6[0][IPv6].src))
+        except:
+            print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker IP: " + Fore.WHITE + Style.BRIGHT + "Not Found")
+        try:
+            print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker MAC: " + Fore.WHITE + Style.BRIGHT + str(dhcpv6[0][Ether].src))
+        except:
+            print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker MAC: " + Fore.WHITE + Style.BRIGHT + "Not Found")
         # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable RA Guard, SAVI")
 
     if ssdp:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected SSDP Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Credentials Interception, MITM")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Credentials Interception, MITM")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "evil-ssdp")
         print(Fore.GREEN + Style.BRIGHT + "[!] The attack may seem too theoretical")
+        print(Fore.YELLOW + Style.BRIGHT + "[*] SSDP Spoofing works specifically against Windows machines")
+        print(Fore.YELLOW + Style.BRIGHT + "[*] You cannot get NetNTLMv2-SSP from Apple devices")
         print(Fore.GREEN + Style.BRIGHT + "[*] SSDP Speaker MAC: " + Fore.WHITE + Style.BRIGHT + str(ssdp[0][Ether].src))
         print(Fore.GREEN + Style.BRIGHT + "[*] SSDP Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(ssdp[0][IP].src))
         # Mitigation
@@ -323,7 +350,7 @@ def analyze_pcap(pcap_file):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected MNDP Protocol")
         print(Fore.WHITE + Style.BRIGHT + "[*] MikroTik device may have been detected")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.WHITE + Style.BRIGHT + "Information Gathering, DoS")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Information Gathering")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Above, Wireshark")
         print(Fore.GREEN + Style.BRIGHT + "[*] MNDP Speaker MAC: " + Fore.WHITE + Style.BRIGHT + str(mndp[0][Ether].src))
         print(Fore.GREEN + Style.BRIGHT + "[*] MNDP Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(mndp[0][IP].src))
@@ -331,7 +358,18 @@ def analyze_pcap(pcap_file):
         print(Fore.YELLOW + Style.BRIGHT + "[*] The MNDP protocol is not yet implemented in Scapy")
         # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Disable MNDP on endpoint ports")
-
+    
+    if glbp:
+        print(Fore.WHITE + Style.BRIGHT + '-' * 50)
+        print(Fore.WHITE + Style.BRIGHT + "[+] Detected GLBP Protocol")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MITM")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Loki")
+        print(Fore.YELLOW + Style.BRIGHT + "[!] GLBP has not yet been implemented by Scapy")
+        print(Fore.YELLOW + Style.BRIGHT + "[!] Check AVG router priority values manually using Wireshark")
+        print(Fore.YELLOW + Style.BRIGHT + "[!] If the AVG router's priority value is less than 255, you have a chance of launching a MITM attack.")
+        print(Fore.GREEN + Style.BRIGHT + "[*] GLBP Sender MAC: " + Fore.WHITE + Style.BRIGHT + str(glbp[0][Ether].src))
+        print(Fore.GREEN + Style.BRIGHT + "[*] GLBP Sender IP: " + Fore.WHITE + Style.BRIGHT + str(glbp[0][IP].src))
+        print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use priority 255, use cryptographic authentication, filtering GLBP traffic with ACLs. However, given the specifics of the GLBP setting (AVG/AVF).")
 
 if __name__ == "__main__":
     analyze_pcap()

@@ -4,7 +4,7 @@ Invisible protocol sniffer for finding vulnerabilities in the network. Designed 
 
 Author: Magama Bazarov
 
-![](/cover/kali-above.svg)
+![](/cover/kali-above.png)
 
 # Disclaimer
 
@@ -126,7 +126,7 @@ sudo python3 setup.py install
 ```
 
 Don't forget to **deactivate** your firewall on macOS!
-#### Settings > Network > Firewall.
+#### Settings > Network > Firewall
 
 ### Windows:
 ```
@@ -188,9 +188,9 @@ caster@kali:~$ above --input-pcap dump.pcap
 
 > WARNING! Above is not designed to work with tunnel interfaces (L3) due to the use of filters for L2 protocols. Tool on tunneled L3 interfaces may not work properly.
 
-## Pcap Analyzing Demo (Cold mode)
+## PCAP Analyzing Demo (Cold mode)
 
-![](/demos/cold-mode.gif)
+![](/demos/coldmode.gif)
 
 
 # Outro

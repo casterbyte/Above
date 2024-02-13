@@ -2,10 +2,10 @@ from setuptools import setup, find_packages
 
 setup(
     name="above",
-    version="2.3",
-    url="https://github.com/cursedpkt/above",
+    version="2.4",
+    url="https://github.com/casterbyte/above",
     author="Magama Bazarov",
-    author_email="cursed@exploit.org",
+    author_email="caster@exploit.org",
     scripts=['above.py'],
     description="Invisible Network Protocol Sniffer",
     long_description=open('README.md').read(),
