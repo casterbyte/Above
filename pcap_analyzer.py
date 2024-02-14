@@ -309,7 +309,6 @@ def analyze_pcap(pcap_file):
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected MDNS Protocol")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MDNS Spoofing, Credentials Interception")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Responder")
-        # There is no Query Name output here because at the time of Above v2.3 - Scapy does not know how to handle MDNS packets
         print(Fore.GREEN + Style.BRIGHT + "[*] MDNS Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(mdns[0][IP].src))
         print(Fore.GREEN + Style.BRIGHT + "[*] MDNS Speaker MAC: " + Fore.WHITE + Style.BRIGHT + str(mdns[0][Ether].src))
         print(Fore.YELLOW + Style.BRIGHT + "[*] MDNS Spoofing works specifically against Windows machines")
