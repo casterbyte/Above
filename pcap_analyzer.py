@@ -336,7 +336,7 @@ def analyze_pcap(pcap_file):
     if ssdp:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected SSDP Protocol")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Credentials Interception, MITM")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "SSDP Spoofing, Credentials Interception")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "evil-ssdp")
         print(Fore.GREEN + Style.BRIGHT + "[!] The attack may seem too theoretical")
         print(Fore.YELLOW + Style.BRIGHT + "[*] SSDP Spoofing works specifically against Windows machines")
@@ -369,7 +369,7 @@ def analyze_pcap(pcap_file):
         print(Fore.YELLOW + Style.BRIGHT + "[!] If the AVG router's priority value is less than 255, you have a chance of launching a MITM attack.")
         print(Fore.GREEN + Style.BRIGHT + "[*] GLBP Sender MAC: " + Fore.WHITE + Style.BRIGHT + str(glbp[0][Ether].src))
         print(Fore.GREEN + Style.BRIGHT + "[*] GLBP Sender IP: " + Fore.WHITE + Style.BRIGHT + str(glbp[0][IP].src))
-        print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use priority 255, use cryptographic authentication, filtering GLBP traffic with ACLs. However, given the specifics of the GLBP setting (AVG/AVF).")
+        print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use priority 255, use cryptographic authentication, filtering GLBP traffic with ACLs. However, given the specifics of the GLBP setting (AVG/AVF)")
 
 if __name__ == "__main__":
     analyze_pcap()

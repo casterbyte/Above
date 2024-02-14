@@ -439,8 +439,8 @@ def detect_dhcpv6(interface, timer, output_file):
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected DHCPv6 Protocol")
     print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "DNS IPv6 Spoofing")
     print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "mitm6")
-    print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(dhcpv6_packet[0][IPv6].src))
     print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker MAC: " + Fore.WHITE + Style.BRIGHT + str(dhcpv6_packet[0][Ether].src))
+    print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(dhcpv6_packet[0][IPv6].src))
     # Mitigation
     print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable RA Guard, SAVI")
         
@@ -453,7 +453,7 @@ def detect_ssdp(interface, timer, output_file):
         save_to_pcap(ssdp_packet, output_file)
     print(Fore.WHITE + Style.BRIGHT + '-' * 50)
     print(Fore.WHITE + Style.BRIGHT + "[+] Detected SSDP Protocol")
-    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Credentials Interception")
+    print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "SSDP Spoofing, Credentials Interception")
     print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "evil-ssdp")
     print(Fore.GREEN + Style.BRIGHT + "[!] The attack may seem too theoretical")
     print(Fore.YELLOW + Style.BRIGHT + "[*] SSDP Spoofing works specifically against Windows machines")
