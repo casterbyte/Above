@@ -25,6 +25,7 @@ Above is a invisible network sniffer for finding vulnerabilities in network equi
 Detects up to 14 protocols:
 
 ```
+MACSec
 CDP (Cisco Discovery Protocol)
 DTP (Dynamic Trunking Protocol)
 802.1Q Tags (VLAN)
@@ -33,6 +34,7 @@ OSPF (Open Shortest Path First)
 EIGRP (Enhanced Interior Gateway Routing Protocol)
 VRRPv2/v3 (Virtual Router Redundancy Protocol)
 HSRPv1 (Host Standby Redundancy Protocol)
+GLBP (Gateway Load Balancing Protocol)
 STP (Spanning Tree Protocol)
 LLMNR (Link Local Multicast Name Resolution)
 NBT-NS (NetBIOS Name Service)
