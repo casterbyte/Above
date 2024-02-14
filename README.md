@@ -22,7 +22,7 @@ Above is a invisible network sniffer for finding vulnerabilities in network equi
 
 ## Supported protocols
 
-Detects up to 14 protocols:
+Detects up to 17 protocols:
 
 ```
 MACSec
