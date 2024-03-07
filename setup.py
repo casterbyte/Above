@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="above",
-    version="2.4",
+    version="2.5",
     url="https://github.com/casterbyte/above",
     author="Magama Bazarov",
     author_email="caster@exploit.org",
@@ -17,7 +17,6 @@ setup(
         'scapy',
         'colorama',
     ],
-    py_modules=['pcap_analyzer'],
     entry_points={
         "console_scripts": ["above = above:main"],
     },
