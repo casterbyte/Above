@@ -129,6 +129,7 @@ def packet_detection(packet):
             print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: MD5 or SHA-256")
             print(Fore.YELLOW + Style.BRIGHT + "[*] Tools for bruteforce: Ettercap, John the Ripper")
             print(Fore.GREEN + Style.BRIGHT + "[*] OSPF Key ID: " + Fore.WHITE + Style.BRIGHT + str(packet[OSPF_Hdr].keyid))
+
         # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable passive interfaces, use authentication")
 
@@ -156,6 +157,7 @@ def packet_detection(packet):
         else:
             mac_src = 'Unknown'
         print(Fore.GREEN + Style.BRIGHT + "[*] Peer MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
+
         # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use authentication, filter routes")
 
@@ -186,6 +188,7 @@ def packet_detection(packet):
             hsrpv1_plaintext = packet[HSRP].auth
             simplehsrppass = hsrpv1_plaintext.decode("UTF-8")
             print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: " + Fore.WHITE + Style.BRIGHT + "Plaintext Phrase: " + simplehsrppass)
+            
         # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use priority 255, use authentication")
 

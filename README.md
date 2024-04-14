@@ -42,7 +42,7 @@ LLDP (Link Layer Discovery Protocol)
 802.1Q Tags (VLAN)
 S7COMM (Siemens)
 OMRON
-TACACS+
+TACACS+ (Terminal Access Controller Access Control System Plus)
 ModbusTCP
 STP (Spanning Tree Protocol)
 OSPF (Open Shortest Path First)
