@@ -245,14 +245,10 @@ caster@kali:~$ sudo above --interface eth0 --passive-arp --timer 10
 
 --------------------------------------------------
 [+] Detected ARP Reply
-[*] Attack Impact: ARP Spoofing
-[*] Tools: Ettercap
 [*] ARP Reply for IP: 192.168.1.88
 [*] MAC Address: 00:00:0c:07:ac:c8
 --------------------------------------------------
 [+] Detected ARP Reply
-[*] Attack Impact: ARP Spoofing
-[*] Tools: Ettercap
 [*] ARP Reply for IP: 192.168.1.40
 [*] MAC Address: 00:0c:29:c5:82:81
 --------------------------------------------------
