@@ -751,7 +751,6 @@ def packet_detection(packet):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected TACACS+ Packet")
         header = packet[TacacsHeader]
-        print(Fore.GREEN + Style.BRIGHT + "[+] TACACS+ Version: " + Fore.WHITE + Style.BRIGHT + f"{header.version}")
         print(Fore.GREEN + Style.BRIGHT + "[+] TACACS+ Type: " + Fore.WHITE + Style.BRIGHT + f"{header.type}")
         print(Fore.GREEN + Style.BRIGHT + "[+] TACACS+ Flags: " + Fore.WHITE + Style.BRIGHT + f"{header.flags}")
         print(Fore.GREEN + Style.BRIGHT + "[+] TACACS+ Session ID: " + Fore.WHITE + Style.BRIGHT + f"{header.session_id}")
