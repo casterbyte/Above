@@ -141,15 +141,6 @@ sudo python3 setup.py install
 
 Don't forget to **deactivate** your firewall on macOS!
 #### Settings > Network > Firewall
-
-### Windows:
-```
-P:\>git clone https://github.com/casterbyte/above
-P:\>cd above/
-P:\above>pip3 install scapy
-P:\above>pip3 install colorama
-P:\above>python above.py --help
-```
 --------------------------
 
 # How to Use
