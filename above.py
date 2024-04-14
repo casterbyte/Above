@@ -63,8 +63,8 @@ print("    Designed for pentesters and security engineers\n")
 print("    For documentation and usage examples, visit: https://github.com/casterbyte/Above\n")
 print("    " + Fore.YELLOW + "Author: " + Style.RESET_ALL + "Magama Bazarov, <caster@exploit.org>")
 print("    " + Fore.YELLOW + "Pseudonym: " + Style.RESET_ALL + "Caster")
-print("    " + Fore.YELLOW + "Version: " + Fore.WHITE + "2.6")
-print("    " + Fore.YELLOW + "Codename: " + Fore.WHITE + "Introvert\n")
+print("    " + Fore.YELLOW + "Version: " + Style.RESET_ALL + "2.6")
+print("    " + Fore.YELLOW + "Codename: " + Style.RESET_ALL + "Introvert\n")
 
 
 # pcap parsing, cold mode
@@ -188,7 +188,7 @@ def packet_detection(packet):
             hsrpv1_plaintext = packet[HSRP].auth
             simplehsrppass = hsrpv1_plaintext.decode("UTF-8")
             print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: " + Fore.WHITE + Style.BRIGHT + "Plaintext Phrase: " + simplehsrppass)
-            
+
         # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use priority 255, use authentication")
 
