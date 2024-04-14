@@ -150,8 +150,7 @@ P:\above>pip3 install scapy
 P:\above>pip3 install colorama
 P:\above>python above.py --help
 ```
-
-> The development of this version of Above was based on Python version **3.11.6**, Scapy version **2.5.0.dev212**
+--------------------------
 
 # How to Use
 

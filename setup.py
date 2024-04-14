@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="above",
-    version="2.5",
+    version="2.6",
     url="https://github.com/casterbyte/above",
     author="Magama Bazarov",
     author_email="caster@exploit.org",
