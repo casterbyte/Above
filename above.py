@@ -25,7 +25,6 @@ import socket
 import signal
 import sys
 import os
-import sys
 
 # For colors (colorama)
 init(autoreset=True)
@@ -66,27 +65,15 @@ print("    " + Fore.YELLOW + "Pseudonym: " + Style.RESET_ALL + "Caster")
 print("    " + Fore.YELLOW + "Version: " + Style.RESET_ALL + "2.6")
 print("    " + Fore.YELLOW + "Codename: " + Style.RESET_ALL + "Introvert\n")
 
-
 # pcap parsing, cold mode
-def analyze_pcap(pcap_path):
+def analyze_pcap(pcap_path, args):
     packets = rdpcap(pcap_path)
     for packet in packets:
-        packet_detection(packet)
+        packet_detection(packet, args)
 
 # Packet Processing
-def packet_detection(packet):
-    # for capture protocols to pcap
-    if (packet.haslayer(OSPF_Hdr) or packet.haslayer(CDPv2_HDR) or packet.haslayer(MACsec) or packet.haslayer(EAPOL) \
-        or packet.haslayer(EIGRP) or packet.haslayer(DTP) or packet.haslayer(STP) or packet.haslayer(LLDPDU) \
-        or packet.haslayer(HSRP) or packet.haslayer(VRRP) or packet.haslayer(VRRPv3) or packet.haslayer(ModbusADURequest) or packet.haslayer(ModbusADUResponse) \
-        or packet.haslayer(BGPOpen) or packet.haslayer(BGPHeader) \
-        or packet.haslayer(BOOTP) or packet.haslayer(DHCP) or packet.haslayer(IGMP) or packet.haslayer(ICMPv6ND_RS) \
-        or packet.haslayer(ARP) or packet.haslayer(IPv6) or packet.haslayer(Dot1Q) or packet.haslayer(UDP) \
-        and packet[UDP].dport in [137, 5353, 5355, 3222, 546, 547, 1900, 9600] or (packet.haslayer(TCP) and packet[TCP].dport == 102)):
-        packets.append(packet)
-
-    # MACSec
-    if packet.haslayer(MACsec):
+def packet_detection(packet, args):
+    if args.MACSec and packet.haslayer(MACsec):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected MACSec")
         print(Fore.YELLOW + Style.BRIGHT + "[+] The network may be using 802.1X, keep that in mind")
@@ -95,8 +82,7 @@ def packet_detection(packet):
         except:
             print(Fore.GREEN + Style.BRIGHT + "[*] System Identifier: " + Fore.WHITE + Style.BRIGHT + "Not Found")
 
-    # OSPF
-    if packet.haslayer(OSPF_Hdr):
+    if args.OSPF and packet.haslayer(OSPF_Hdr):
         def hex_to_string(hex):
             if hex[:2] == '0x':
                 hex = hex[2:]
@@ -117,7 +103,6 @@ def packet_detection(packet):
             mac_src = 'Unknown'
         print(Fore.GREEN + Style.BRIGHT + "[*] OSPF Neighbor MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
 
-        # Authentication Checking
         if packet[OSPF_Hdr].authtype == 0x0:
             print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: No")
         elif packet[OSPF_Hdr].authtype == 0x1:
@@ -129,12 +114,9 @@ def packet_detection(packet):
             print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: MD5 or SHA-256")
             print(Fore.YELLOW + Style.BRIGHT + "[*] Tools for bruteforce: Ettercap, John the Ripper")
             print(Fore.GREEN + Style.BRIGHT + "[*] OSPF Key ID: " + Fore.WHITE + Style.BRIGHT + str(packet[OSPF_Hdr].keyid))
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable passive interfaces, use authentication")
 
-    # BGP
-    if packet.haslayer(BGPHeader):
+    if args.BGP and packet.haslayer(BGPHeader):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected BGP Packet")
         print(Fore.GREEN + Style.BRIGHT + "[+] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Route Hijacking")
@@ -157,12 +139,9 @@ def packet_detection(packet):
         else:
             mac_src = 'Unknown'
         print(Fore.GREEN + Style.BRIGHT + "[*] Peer MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use authentication, filter routes")
 
-    # HSRP
-    if packet.haslayer(HSRP) and packet[HSRP].state == 16:
+    if args.HSRP and packet.haslayer(HSRP) and packet[HSRP].state == 16:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected HSRP Packet")
         print(Fore.GREEN + Style.BRIGHT + "[*] HSRP active router priority: " + Fore.WHITE + Style.BRIGHT + str(packet[HSRP].priority))
@@ -180,7 +159,6 @@ def packet_detection(packet):
             mac_src = 'Unknown'
         print(Fore.GREEN + Style.BRIGHT + "[*] HSRP Speaker MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
 
-        # Authentication Checking
         if packet.haslayer(HSRPmd5):
             print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: " + Fore.WHITE + Style.BRIGHT + "MD5")
             print(Fore.YELLOW + Style.BRIGHT + "[*] Tools for bruteforce: hsrp2john.py, John the Ripper")
@@ -188,19 +166,16 @@ def packet_detection(packet):
             hsrpv1_plaintext = packet[HSRP].auth
             simplehsrppass = hsrpv1_plaintext.decode("UTF-8")
             print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: " + Fore.WHITE + Style.BRIGHT + "Plaintext Phrase: " + simplehsrppass)
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use priority 255, use authentication")
 
-    # VRRPv2
-    if packet.haslayer(VRRP):
+    if args.VRRP and packet.haslayer(VRRP):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected VRRPv2 Packet")
-        
+
         if packet.haslayer(AH):
-            print (Fore.YELLOW + Style.BRIGHT + "[!] Authentication: AH Header detected, VRRP packet is encrypted")
-            return 0
-        
+            print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: AH Header detected, VRRP packet is encrypted")
+            return
+
         if packet.haslayer(VRRP):
             print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv2 master router priority: " + Fore.WHITE + Style.BRIGHT + str(packet[VRRP].priority))
             print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MITM")
@@ -215,7 +190,6 @@ def packet_detection(packet):
                 mac_src = 'Unknown (Cooked Capture)'
             else:
                 mac_src = 'Unknown'
-
             print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv2 Speaker MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
 
             if packet[VRRP].authtype == 0:
@@ -224,13 +198,9 @@ def packet_detection(packet):
                 print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: Plaintext. Look at the password in Wireshark")
             elif packet[VRRP].authtype == 254:
                 print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: MD5")
-
-            # Mitigation
             print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use authentication, filter VRRP traffic using ACL")
 
-
-    # VRRPv3
-    if packet.haslayer(VRRPv3):
+    if args.VRRPv3 and packet.haslayer(VRRPv3):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected VRRPv3 Packet")
         print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv3 master router priority: " + Fore.WHITE + Style.BRIGHT + str(packet[VRRPv3].priority))
@@ -238,22 +208,18 @@ def packet_detection(packet):
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Scapy, Loki")
         print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv3 Group Number: " + Fore.WHITE + Style.BRIGHT + str(packet[VRRPv3].vrid))
         print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv3 Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(packet[IP].src))
-        
+
         if packet.haslayer(Ether):
             mac_src = packet[Ether].src
         elif packet.haslayer(CookedLinux):
             mac_src = 'Unknown (Cooked Capture)'
         else:
             mac_src = 'Unknown'
-
         print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv3 Speaker MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
         print(Fore.GREEN + Style.BRIGHT + "[*] VRRPv3 Virtual IP Address: " + Fore.WHITE + Style.BRIGHT + ', '.join(packet[VRRPv3].addrlist))
-        
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Filter VRRP traffic using ACL")
 
-    # GLBP
-    if packet.haslayer(IP) and packet.haslayer(UDP):
+    if args.GLBP and packet.haslayer(IP) and packet.haslayer(UDP):
         if packet[IP].dst == "224.0.0.102" and packet[UDP].dport == 3222:
             print(Fore.WHITE + Style.BRIGHT + '-' * 50)
             print(Fore.WHITE + Style.BRIGHT + "[+] Detected GLBP Packet")
@@ -261,7 +227,7 @@ def packet_detection(packet):
             print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Loki")
             print(Fore.YELLOW + Style.BRIGHT + "[!] GLBP has not yet been implemented by Scapy")
             print(Fore.YELLOW + Style.BRIGHT + "[!] Check AVG router priority values manually using Wireshark")
-            print(Fore.YELLOW + Style.BRIGHT + "[!] If the AVG router's priority value is less than 255, you have a chance of launching a MITM attack.") 
+            print(Fore.YELLOW + Style.BRIGHT + "[!] If the AVG router's priority value is less than 255, you have a chance of launching a MITM attack.")
 
             if packet.haslayer(Ether):
                 mac_src = packet[Ether].src
@@ -271,12 +237,9 @@ def packet_detection(packet):
                 mac_src = 'Unknown'
             print(Fore.GREEN + Style.BRIGHT + "[*] GLBP Sender MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
             print(Fore.GREEN + Style.BRIGHT + "[*] GLBP Sender IP: " + Fore.WHITE + Style.BRIGHT + str(packet[IP].src))
+            print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use priority 255, use authentication")
 
-            # Mitigation
-            print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use priority 255, use authentication")        
-
-    # DTP
-    if packet.haslayer(DTP):
+    if args.DTP and packet.haslayer(DTP):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected DTP Frame")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "VLAN Segmentation Bypass")
@@ -291,13 +254,9 @@ def packet_detection(packet):
         else:
             mac_src = 'Unknown'
         print(Fore.GREEN + Style.BRIGHT + "[*] DTP Neighbor MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Disable DTP")
 
-
-    # STP
-    if packet.haslayer(STP):
+    if args.STP and packet.haslayer(STP):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected STP Frame")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Partial MITM")
@@ -312,12 +271,9 @@ def packet_detection(packet):
         print(Fore.GREEN + Style.BRIGHT + "[*] STP Root Switch MAC: " + Fore.WHITE + Style.BRIGHT + root_switch_mac)
         print(Fore.GREEN + Style.BRIGHT + "[*] STP Root ID: " + Fore.WHITE + Style.BRIGHT + str(packet[STP].rootid))
         print(Fore.GREEN + Style.BRIGHT + "[*] STP Root Path Cost: " + Fore.WHITE + Style.BRIGHT + str(packet[STP].pathcost))
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable BPDU Guard")
- 
-    # CDP
-    if packet.haslayer(CDPv2_HDR):
+
+    if args.CDP and packet.haslayer(CDPv2_HDR):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected CDP Frame")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Information Gathering, CDP Flood")
@@ -340,13 +296,9 @@ def packet_detection(packet):
         else:
             mac_src = 'Unknown'
         print(Fore.GREEN + Style.BRIGHT + "[*] CDP Neighbor MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Disable CDP if not required, be careful with VoIP")
 
-
-    # EIGRP
-    if packet.haslayer(EIGRP):
+    if args.EIGRP and packet.haslayer(EIGRP):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected EIGRP Packet")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Subnets Discovery, Blackhole, Evil Twin")
@@ -361,12 +313,11 @@ def packet_detection(packet):
         if packet.haslayer(Ether):
             neighbor_mac = packet[Ether].src
         elif packet.haslayer(CookedLinux):
-            neighbor_mac = 'Unknown (Cooked Capture)' 
+            neighbor_mac = 'Unknown (Cooked Capture)'
         else:
             neighbor_mac = 'Unknown'
         print(Fore.GREEN + Style.BRIGHT + "[*] EIGRP Neighbor MAC: " + Fore.WHITE + Style.BRIGHT + neighbor_mac)
 
-        # Authentication Checking
         if packet.haslayer(EIGRPAuthData):
             print(Fore.YELLOW + Style.BRIGHT + "[!] There is EIGRP Authentication")
             authtype = packet[EIGRPAuthData].authtype
@@ -377,12 +328,9 @@ def packet_detection(packet):
                 print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: SHA-256")
         else:
             print(Fore.YELLOW + Style.BRIGHT + "[!] Authentication: No")
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable passive interfaces, use authentication")
 
-    # LLMNR
-    if packet.haslayer(UDP) and packet[UDP].dport == 5355:
+    if args.LLMNR and packet.haslayer(UDP) and packet[UDP].dport == 5355:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected LLMNR Packet")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "LLMNR Spoofing, Credentials Interception")
@@ -407,23 +355,18 @@ def packet_detection(packet):
         else:
             print(Fore.RED + Style.BRIGHT + "[!] No IP layer found")
             return
-        
+
         if packet.haslayer(Ether):
             mac_src = packet[Ether].src
         elif packet.haslayer(CookedLinux):
             mac_src = 'Unknown (Cooked Capture)'
         else:
             mac_src = 'Unknown'
-
         print(Fore.GREEN + Style.BRIGHT + "[*] LLMNR Speaker IP: " + Fore.WHITE + Style.BRIGHT + ip_src)
         print(Fore.GREEN + Style.BRIGHT + "[*] LLMNR Speaker MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Disable LLMNR")
 
-
-    # NBT-NS
-    if packet.haslayer(UDP) and packet[UDP].dport == 137:
+    if args.NBT_NS and packet.haslayer(UDP) and packet[UDP].dport == 137:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected NBT-NS Packet")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "NBT-NS Spoofing, Credentials Interception")
@@ -438,7 +381,6 @@ def packet_detection(packet):
             print(Fore.GREEN + Style.BRIGHT + "[*] NBT-NS Packet Transaction ID: " + Fore.WHITE + Style.BRIGHT + str(packet[0]["NBNS Header"].NAME_TRN_ID))
         except:
             print(Fore.GREEN + Style.BRIGHT + "[*] NBT-NS Packet Transaction ID: " + Fore.WHITE + Style.BRIGHT + "Not Found")
-
         print(Fore.GREEN + Style.BRIGHT + "[*] NBT-NS Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(packet[0][IP].src))
 
         if packet.haslayer(Ether):
@@ -447,15 +389,10 @@ def packet_detection(packet):
             speaker_mac = 'Unknown (Cooked Capture)'
         else:
             speaker_mac = 'Unknown'
-
         print(Fore.GREEN + Style.BRIGHT + "[*] NBT-NS Speaker MAC: " + Fore.WHITE + Style.BRIGHT + speaker_mac)
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Disable NBT-NS")
 
-
-    # MDNS
-    if packet.haslayer(UDP) and packet[UDP].dport == 5353:
+    if args.MDNS and packet.haslayer(UDP) and packet[UDP].dport == 5353:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected MDNS Packet")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "MDNS Spoofing, Credentials Interception")
@@ -474,32 +411,26 @@ def packet_detection(packet):
             mac_src = 'Unknown (Cooked Capture)'
         else:
             mac_src = 'Unknown'
-
         print(Fore.GREEN + Style.BRIGHT + "[*] MDNS Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(ip_src))
         print(Fore.GREEN + Style.BRIGHT + "[*] MDNS Speaker MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT +  "Filter MDNS traffic. Be careful with MDNS filtering")
 
-
-    # EAPOL
-    if packet.haslayer(EAPOL):
+    if args.EAPOL and packet.haslayer(EAPOL):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected EAPOL")
         if packet[EAPOL].version == 3:
-            print (Fore.YELLOW + Style.BRIGHT + "[*] 802.1X Version: 2010")     
+            print (Fore.YELLOW + Style.BRIGHT + "[*] 802.1X Version: 2010")
         elif packet[EAPOL].version == 2:
-            print (Fore.YELLOW + Style.BRIGHT + "[*] 802.1X Version: 2004")   
+            print (Fore.YELLOW + Style.BRIGHT + "[*] 802.1X Version: 2004")
         elif packet[EAPOL].version == 1:
-            print (Fore.YELLOW + Style.BRIGHT + "[*] 802.1X Version: 2001")  
+            print (Fore.YELLOW + Style.BRIGHT + "[*] 802.1X Version: 2001")
         else:
             print (Fore.YELLOW + Style.BRIGHT + "[*] 802.1X Version: Unknown")
-      
-    # DHCP Discover
-    if packet.haslayer(UDP) and packet[UDP].dport == 67 and packet.haslayer(DHCP):
+
+    if args.DHCP and packet.haslayer(UDP) and packet[UDP].dport == 67 and packet.haslayer(DHCP):
         dhcp_options = packet[DHCP].options
         for option in dhcp_options:
-            if option[0] == 'message-type' and option[1] == 1: 
+            if option[0] == 'message-type' and option[1] == 1:
                 print(Fore.WHITE + Style.BRIGHT + '-' * 50)
                 print(Fore.WHITE + Style.BRIGHT + "[+] Detected DHCP Discovery")
                 print(Fore.YELLOW + Style.BRIGHT + "[*] DHCP Discovery can lead to unauthorized network configuration")
@@ -512,13 +443,9 @@ def packet_detection(packet):
                 else:
                     mac_src = 'Unknown'
                 print(Fore.GREEN + Style.BRIGHT + "[*] DHCP Speaker MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
-
-                # Mitigation
                 print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use DHCP Snooping")
 
-
-    # VLAN
-    if packet.haslayer(Dot1Q):
+    if args.VLAN and packet.haslayer(Dot1Q):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected 802.1Q Tag")
 
@@ -530,13 +457,9 @@ def packet_detection(packet):
         print(Fore.GREEN + Style.BRIGHT + "[!] Found VLAN IDs: " + Style.RESET_ALL + vlan_id_string)
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "VLAN Segmentation Bypass")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Native Linux tools")
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Carefully check the configuration of trunk ports")
 
-
-    # IGMP
-    if packet.haslayer(IGMP):
+    if args.IGMP and packet.haslayer(IGMP):
         igmp_type = packet[IGMP].type
         igmp_types = {
             0x11: "Membership Query", 0x12: "Version 1 - Membership Report",
@@ -552,12 +475,9 @@ def packet_detection(packet):
         print(Fore.YELLOW + Style.BRIGHT + "[*] IGMP types include queries, reports, and leaves")
         print(Fore.GREEN + Style.BRIGHT + "[*] IGMP Speaker IP: " + Fore.WHITE + Style.BRIGHT + str(packet[IP].src))
         print(Fore.GREEN + Style.BRIGHT + "[*] Multicast Address: " + Fore.WHITE + Style.BRIGHT + str(packet[IP].dst))
+        print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "If there is a lot of multicast traffic, use IGMP Snooping")
 
-        # Mitigation
-        print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "If there is a lot of multicast traffic, use IGMP Snooping")  
-    
-    # ICMPv6 RS
-    if packet.haslayer(ICMPv6ND_RS):
+    if args.ICMPv6 and packet.haslayer(ICMPv6ND_RS):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected ICMPv6 Router Solicitation (RS)")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Potential for DoS attacks and network reconnaissance")
@@ -565,10 +485,8 @@ def packet_detection(packet):
         print(Fore.YELLOW + Style.BRIGHT + "[*] ICMPv6 RS messages are used by devices to locate routers")
         print(Fore.GREEN + Style.BRIGHT + "[*] IPv6 Source Address: " + Fore.WHITE + Style.BRIGHT + str(packet[IPv6].src))
         print(Fore.GREEN + Style.BRIGHT + "[*] Target of Solicitation: " + Fore.WHITE + Style.BRIGHT + "All Routers Multicast Address (typically ff02::2)")
-    
 
-    # LLDP
-    if packet.haslayer(LLDPDU):
+    if args.LLDP and packet.haslayer(LLDPDU):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected LLDP Frame")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Information Gathering")
@@ -595,13 +513,9 @@ def packet_detection(packet):
         else:
             source_mac = 'Unknown'
         print(Fore.GREEN + Style.BRIGHT + "[*] LLDP Source MAC: " + Fore.WHITE + Style.BRIGHT + source_mac)
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Disable LLDP if not required, be careful with VoIP")
 
-
-    # MNDP
-    if packet.haslayer(UDP) and packet[UDP].dport == 5678:
+    if args.MNDP and packet.haslayer(UDP) and packet[UDP].dport == 5678:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected MNDP Packet")
         print(Fore.WHITE + Style.BRIGHT + "[*] MikroTik device may have been detected")
@@ -622,22 +536,19 @@ def packet_detection(packet):
             speaker_mac = 'Unknown (Cooked Capture)'
         else:
             speaker_mac = 'Unknown'
-        
+
         print(Fore.GREEN + Style.BRIGHT + "[*] MNDP Speaker MAC: " + Fore.WHITE + Style.BRIGHT + speaker_mac)
 
         print(Fore.YELLOW + Style.BRIGHT + "[*] You can get more information from the packet in Wireshark")
         print(Fore.YELLOW + Style.BRIGHT + "[*] The MNDP protocol is not yet implemented in Scapy")
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Disable MNDP if not required")
 
-    # DHCPv6
-    if packet.haslayer(UDP) and (packet[UDP].sport == 546 or packet[UDP].dport == 546 or packet[UDP].sport == 547 or packet[UDP].dport == 547):
+    if args.DHCPv6 and packet.haslayer(UDP) and (packet[UDP].sport == 546 or packet[UDP].dport == 546 or packet[UDP].sport == 547 or packet[UDP].dport == 547):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected DHCPv6 Packet")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Potential DNS IPv6 Spoofing")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "mitm6")
-        
+
         if packet.haslayer(Ether):
             mac_src = packet[Ether].src
             ip_src = packet[IPv6].src
@@ -647,15 +558,11 @@ def packet_detection(packet):
         else:
             mac_src = 'Unknown'
             ip_src = 'Unknown'
-
         print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
         print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker IP: " + Fore.WHITE + Style.BRIGHT + ip_src)
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable RA Guard, SAVI")
 
-    # SSDP
-    if packet.haslayer(UDP) and packet[UDP].dport == 1900:
+    if args.SSDP and packet.haslayer(UDP) and packet[UDP].dport == 1900:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected SSDP Packet")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Potential for UPnP Device Exploitation, MITM")
@@ -673,21 +580,18 @@ def packet_detection(packet):
             source_mac = 'Unknown (Cooked Capture)'
         else:
             source_mac = 'Unknown'
-        
-        print(Fore.GREEN + Style.BRIGHT + "[*] SSDP Source MAC: " + Fore.WHITE + Style.BRIGHT + source_mac)
 
-        # Mitigation
+        print(Fore.GREEN + Style.BRIGHT + "[*] SSDP Source MAC: " + Fore.WHITE + Style.BRIGHT + source_mac)
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: "+ Fore.WHITE + Style.BRIGHT +  "Ensure UPnP is disabled on all devices unless absolutely necessary, monitor UPnP and SSDP traffic")
 
-    # Modbus TCP (Request & Response Detecton)
-    if packet.haslayer(ModbusADURequest):
+    if args.ModbusTCP and packet.haslayer(ModbusADURequest):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected Modbus ADU Request Packet")
         print(Fore.YELLOW + Style.BRIGHT + "[!] SCADA device may have been detected")
         print(Fore.GREEN + Style.BRIGHT + "[*] Transaction ID: " + Fore.WHITE + Style.BRIGHT + str(packet[ModbusADURequest].transId))
         print(Fore.GREEN + Style.BRIGHT + "[*] Protocol ID: " + Fore.WHITE + Style.BRIGHT + str(packet[ModbusADURequest].protoId))
         print(Fore.GREEN + Style.BRIGHT + "[*] Unit ID: " + Fore.WHITE + Style.BRIGHT + str(packet[ModbusADURequest].unitId))
-    
+
         if packet.haslayer(Ether):
             print(Fore.YELLOW + Style.BRIGHT + "[+] Source MAC: " + Fore.WHITE + Style.BRIGHT + packet[Ether].src)
             print(Fore.YELLOW + Style.BRIGHT + "[+] Destination MAC: " + Fore.WHITE + Style.BRIGHT + packet[Ether].dst)
@@ -698,7 +602,7 @@ def packet_detection(packet):
             print(Fore.WHITE + Style.BRIGHT + "[+] Source TCP Port: " + Fore.WHITE + Style.BRIGHT + str(packet[TCP].sport))
             print(Fore.WHITE + Style.BRIGHT + "[+] Destination TCP Port: " + Fore.WHITE + Style.BRIGHT + str(packet[TCP].dport))
 
-    if packet.haslayer(ModbusADUResponse):
+    if args.ModbusTCP and packet.haslayer(ModbusADUResponse):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected Modbus ADU Response Packet")
         print(Fore.YELLOW + Style.BRIGHT + "[!] SCADA device may have been detected")
@@ -716,8 +620,7 @@ def packet_detection(packet):
             print(Fore.WHITE + Style.BRIGHT + "[+] Source TCP Port: " + Fore.WHITE + Style.BRIGHT + str(packet[TCP].sport))
             print(Fore.WHITE + Style.BRIGHT + "[+] Destination TCP Port: " + Fore.WHITE + Style.BRIGHT + str(packet[TCP].dport))
 
-    # OMRON
-    if packet.haslayer(UDP) and packet[UDP].dport == 9600:
+    if args.OMRON and packet.haslayer(UDP) and packet[UDP].dport == 9600:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Possible OMRON packet detection")
         print(Fore.YELLOW + Style.BRIGHT + "[!] SCADA device may have been detected")
@@ -731,8 +634,7 @@ def packet_detection(packet):
             print(Fore.WHITE + Style.BRIGHT + "[+] Source UDP Port: " + Fore.WHITE + Style.BRIGHT + str(packet[UDP].sport))
             print(Fore.WHITE + Style.BRIGHT + "[+] Destination UDP Port: " + Fore.WHITE + Style.BRIGHT + str(packet[UDP].dport))
 
-    # S7COMM
-    if packet.haslayer(TCP) and packet[TCP].dport == 102:
+    if args.S7COMM and packet.haslayer(TCP) and packet[TCP].dport == 102:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Possible S7COMM packet detection")
         print(Fore.YELLOW + Style.BRIGHT + "[!] SCADA device may have been detected")
@@ -746,8 +648,7 @@ def packet_detection(packet):
             print(Fore.WHITE + Style.BRIGHT + "[+] Source TCP Port: " + Fore.WHITE + Style.BRIGHT + str(packet[TCP].sport))
             print(Fore.WHITE + Style.BRIGHT + "[+] Destination TCP Port: " + Fore.WHITE + Style.BRIGHT + str(packet[TCP].dport))
 
-    # TACACS+
-    if packet.haslayer(TacacsHeader):
+    if args.TACACS and packet.haslayer(TacacsHeader):
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected TACACS+ Packet")
         header = packet[TacacsHeader]
@@ -764,10 +665,7 @@ def packet_detection(packet):
 
         mac_src = packet.getlayer(Ether).src if packet.haslayer(Ether) else 'Unknown'
         print(Fore.GREEN + Style.BRIGHT + "[*] Source MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
-
-        # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use strong passwords, monitor unusual activities")
-
 
 # list for packets processing
 packets = []
@@ -789,6 +687,37 @@ def main():
     parser.add_argument('--output', type=str, help='File name where the traffic will be recorded')
     parser.add_argument('--input', type=str, help='File name of the traffic dump')
     parser.add_argument('--passive-arp', action='store_true', help='Passive ARP (Host Discovery)')
+
+    # Individual protocol flags
+    parser.add_argument('--MACSec', action='store_true', help='Capture MACSec packets')
+    parser.add_argument('--EAPOL', action='store_true', help='Capture EAPOL packets')
+    parser.add_argument('--ARP', action='store_true', help='Capture ARP packets')
+    parser.add_argument('--CDP', action='store_true', help='Capture CDP packets')
+    parser.add_argument('--DTP', action='store_true', help='Capture DTP packets')
+    parser.add_argument('--LLDP', action='store_true', help='Capture LLDP packets')
+    parser.add_argument('--VLAN', action='store_true', help='Capture VLAN packets')
+    parser.add_argument('--S7COMM', action='store_true', help='Capture S7COMM packets')
+    parser.add_argument('--OMRON', action='store_true', help='Capture OMRON packets')
+    parser.add_argument('--TACACS', action='store_true', help='Capture TACACS+ packets')
+    parser.add_argument('--ModbusTCP', action='store_true', help='Capture ModbusTCP packets')
+    parser.add_argument('--STP', action='store_true', help='Capture STP packets')
+    parser.add_argument('--OSPF', action='store_true', help='Capture OSPF packets')
+    parser.add_argument('--EIGRP', action='store_true', help='Capture EIGRP packets')
+    parser.add_argument('--BGP', action='store_true', help='Capture BGP packets')
+    parser.add_argument('--VRRP', action='store_true', help='Capture VRRP packets')
+    parser.add_argument('--VRRPv3', action='store_true', help='Capture VRRPv3 packets')
+    parser.add_argument('--HSRP', action='store_true', help='Capture HSRP packets')
+    parser.add_argument('--GLBP', action='store_true', help='Capture GLBP packets')
+    parser.add_argument('--IGMP', action='store_true', help='Capture IGMP packets')
+    parser.add_argument('--LLMNR', action='store_true', help='Capture LLMNR packets')
+    parser.add_argument('--NBT_NS', action='store_true', help='Capture NBT-NS packets')
+    parser.add_argument('--MDNS', action='store_true', help='Capture MDNS packets')
+    parser.add_argument('--DHCP', action='store_true', help='Capture DHCP packets')
+    parser.add_argument('--DHCPv6', action='store_true', help='Capture DHCPv6 packets')
+    parser.add_argument('--ICMPv6', action='store_true', help='Capture ICMPv6 packets')
+    parser.add_argument('--SSDP', action='store_true', help='Capture SSDP packets')
+    parser.add_argument('--MNDP', action='store_true', help='Capture MNDP packets')
+
     args = parser.parse_args()
 
     def signal_handler(sig, frame):
@@ -801,15 +730,24 @@ def main():
                 print(Fore.RED + Style.BRIGHT + f"Error saving packets to {args.output}: {e}")
         sys.exit(0)
 
-        
     signal.signal(signal.SIGINT, signal_handler)
+
+    all_flags = [
+        'MACSec', 'EAPOL', 'ARP', 'CDP', 'DTP', 'LLDP', 'VLAN', 'S7COMM', 'OMRON', 'TACACS', 'ModbusTCP', 'STP',
+        'OSPF', 'EIGRP', 'BGP', 'VRRP', 'VRRPv3', 'HSRP', 'GLBP', 'IGMP', 'LLMNR', 'NBT_NS', 'MDNS', 'DHCP',
+        'DHCPv6', 'ICMPv6', 'SSDP', 'MNDP'
+    ]
+
+    if not any(getattr(args, flag) for flag in all_flags):
+        for flag in all_flags:
+            setattr(args, flag, True)
 
     if not any(vars(args).values()):
         print("[!] Use --help to work with the tool")
         return
     if args.input:
         print("[+] Analyzing pcap file...\n")
-        analyze_pcap(args.input)
+        analyze_pcap(args.input, args)
         return
     if os.getuid() != 0:
         print("[!] Sniffing traffic requires root privileges. Please run as root.")
@@ -821,7 +759,7 @@ def main():
         print("-----------------------------------------------------------------------------------------")
         print("[+] Start sniffing...\n")
         print("[*] After the protocol is detected - all necessary information about it will be displayed")
-        sniff(iface=args.interface, timeout=args.timer if args.timer is not None else None, prn=packet_detection, store=0)
+        sniff(iface=args.interface, timeout=args.timer if args.timer is not None else None, prn=lambda x: packet_detection(x, args), store=0)
 
     if packets and args.output:
             try:
