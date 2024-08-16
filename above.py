@@ -26,48 +26,36 @@ import signal
 import sys
 import os
 import sys
+from collections import defaultdict
+from datetime import datetime
+from scapy.layers.snmp import SNMP
+from scapy.layers.radius import Radius, RadiusAttr_User_Password, RadiusAttr_Vendor_Specific
 
 # For colors (colorama)
 init(autoreset=True)
 
 # banner
-banner = r"""
-    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-    ░░░░░░░░░░░░░░░░░░░░░░▒▓▓▒░░░░░░░░░░░░░░░░░░░░░░
-    ░░░░░░░░░░░░░░░░░░░░░█████▓░░░░░░░░░░░░░░░░░░░░░
-    ░░░░░░░░░░░░░░░░░░░░███▒▒██▓░░░░░░░░░░░░░░░░░░░░
-    ░░░░░░░░░░░░░░░░░░░███▒░░▒██▓░░░░░░░░░░░░░░░░░░░
-    ░░░░░░░░░░░░░░░░░░███▒░░░░▒██▓░░░░░░░░░░░░░░░░░░
-    ░░░░░░░░░░░░░░░░░███▒░░█▓░░▒██▓░░░░░░░░░░░░░░░░░
-    ░░░░░░░░░░░░░░░░███▒░░███▓░░▒██▓░░░░░░░░░░░░░░░░
-    ░░░░░░░░░░░░░░░███▒░░█████▓░░▒██▓░░░░░░░░░░░░░░░
-    ░░░░░░░░░░░░░░███▒░░███░░██▓░░▒██▓░░░░░░░░░░░░░░
-    ░░░░░░░░░░░░░███▒░░███░░░░██▓░░▒██▓░░░░░░░░░░░░░
-    ░░░░░░░░░░░░███▒░░███▓▒▒▒▒▓██▓░░▒██▓░░░░░░░░░░░░
-    ░░████████████▒░░█████████████▓░░▒████████████░░
-    ░░███░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░███░░
-    ░░███░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░███░░
-    ░░█████████░░░████████████████████░░▒█████████░░
-    ░░░░░░▒███▒░░███░░░░░░░░░░░░░░░░███░░▒███░░░░░░░
-    ░░░░░░███░░░███░░░░░░░░░░░░░░░░░░███░░▒███░░░░░░
-    ░░░░░███░░░██████████████████████████░░▒███░░░░░
-    ░░░░███░░░▒▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒░░▒███░░░░
-    ░░░███▒░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▒███░░░
-    ░░░██████████████████████████████████████████░░░
-    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+banner = r"""                                         
+  ___  _                    
+ / _ \| |                   
+/ /_\ \ |__   _____   _____ 
+|  _  | '_ \ / _ \ \ / / _ \
+| | | | |_) | (_) \ V /  __/
+\_| |_/_.__/ \___/ \_/ \___|
 """
-print(banner)
-print("    Above: Invisible network protocol sniffer")
-print("    Designed for pentesters and security engineers\n")
-print("    For documentation and usage examples, visit: https://github.com/casterbyte/Above\n")
-print("    " + Fore.YELLOW + "Author: " + Style.RESET_ALL + "Magama Bazarov, <caster@exploit.org>")
-print("    " + Fore.YELLOW + "Pseudonym: " + Style.RESET_ALL + "Caster")
-print("    " + Fore.YELLOW + "Version: " + Style.RESET_ALL + "2.6")
-print("    " + Fore.YELLOW + "Codename: " + Style.RESET_ALL + "Introvert\n")
+
+indent = "    "
+
+# right indented banner output
+print(indent + banner.replace("\n", "\n" + indent))
+print(indent + Fore.YELLOW + "Invisible network protocol sniffer. Designed for pentesters and security engineers\n")
+print(indent + Fore.YELLOW + "Author: " + Style.RESET_ALL + "Magama Bazarov, <caster@exploit.org>")
+print(indent + Fore.YELLOW + "Pseudonym: " + Style.RESET_ALL + "Caster")
+print(indent + Fore.YELLOW + "Version: " + Style.RESET_ALL + "2.7")
+print(indent + Fore.YELLOW + "Codename: " + Style.RESET_ALL + "Adagio for Strings\n")
 
 
-# pcap parsing, cold mode
+# Parsing pcaps
 def analyze_pcap(pcap_path):
     packets = rdpcap(pcap_path)
     for packet in packets:
@@ -75,14 +63,14 @@ def analyze_pcap(pcap_path):
 
 # Packet Processing
 def packet_detection(packet):
-    # for capture protocols to pcap
+
     if (packet.haslayer(OSPF_Hdr) or packet.haslayer(CDPv2_HDR) or packet.haslayer(MACsec) or packet.haslayer(EAPOL) \
         or packet.haslayer(EIGRP) or packet.haslayer(DTP) or packet.haslayer(STP) or packet.haslayer(LLDPDU) \
         or packet.haslayer(HSRP) or packet.haslayer(VRRP) or packet.haslayer(VRRPv3) or packet.haslayer(ModbusADURequest) or packet.haslayer(ModbusADUResponse) \
-        or packet.haslayer(BGPOpen) or packet.haslayer(BGPHeader) \
+        or packet.haslayer(BGPOpen) or packet.haslayer(BGPHeader) or packet.haslayer(Dot1Q) or packet.haslayer(Dot3) \
         or packet.haslayer(BOOTP) or packet.haslayer(DHCP) or packet.haslayer(IGMP) or packet.haslayer(ICMPv6ND_RS) \
-        or packet.haslayer(ARP) or packet.haslayer(IPv6) or packet.haslayer(Dot1Q) or packet.haslayer(UDP) \
-        and packet[UDP].dport in [137, 5353, 5355, 3222, 546, 547, 1900, 9600] or (packet.haslayer(TCP) and packet[TCP].dport == 102)):
+        or packet.haslayer(ARP) or packet.haslayer(IPv6) or packet.haslayer(UDP) or packet.haslayer(Radius) \
+        and packet[UDP].dport in [137, 161, 5353, 5355, 3222, 546, 547, 1900, 9600] or (packet.haslayer(TCP) and packet[TCP].dport == 102)):
         packets.append(packet)
 
     # MACSec
@@ -516,25 +504,6 @@ def packet_detection(packet):
                 # Mitigation
                 print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use DHCP Snooping")
 
-
-    # VLAN
-    if packet.haslayer(Dot1Q):
-        print(Fore.WHITE + Style.BRIGHT + '-' * 50)
-        print(Fore.WHITE + Style.BRIGHT + "[+] Detected 802.1Q Tag")
-
-        vlan_ids = set()
-        vlan_ids.add(packet[Dot1Q].vlan)
-        if len(vlan_ids) == 0:
-            return
-        vlan_id_string = ', '.join(Fore.WHITE + Style.BRIGHT + str(vlan_id) + Style.RESET_ALL for vlan_id in vlan_ids)
-        print(Fore.GREEN + Style.BRIGHT + "[!] Found VLAN IDs: " + Style.RESET_ALL + vlan_id_string)
-        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "VLAN Segmentation Bypass")
-        print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Native Linux tools")
-
-        # Mitigation
-        print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Carefully check the configuration of trunk ports")
-
-
     # IGMP
     if packet.haslayer(IGMP):
         igmp_type = packet[IGMP].type
@@ -652,7 +621,7 @@ def packet_detection(packet):
         print(Fore.GREEN + Style.BRIGHT + "[*] DHCPv6 Speaker IP: " + Fore.WHITE + Style.BRIGHT + ip_src)
 
         # Mitigation
-        print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable RA Guard, SAVI")
+        print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Enable DHCPv6 Snooping")
 
     # SSDP
     if packet.haslayer(UDP) and packet[UDP].dport == 1900:
@@ -762,33 +731,241 @@ def packet_detection(packet):
             print(Fore.GREEN + Style.BRIGHT + "[*] Source IP: " + Fore.WHITE + Style.BRIGHT + f"{src_ip}")
             print(Fore.GREEN + Style.BRIGHT + "[*] Destination IP: " + Fore.WHITE + Style.BRIGHT + f"{dst_ip}")
 
-        mac_src = packet.getlayer(Ether).src if packet.haslayer(Ether) else 'Unknown'
-        print(Fore.GREEN + Style.BRIGHT + "[*] Source MAC: " + Fore.WHITE + Style.BRIGHT + mac_src)
+        # Further analysis
+        if packet[TacacsHeader].type == 1:  # Authentication
+            print(Fore.YELLOW + Style.BRIGHT + "[*] TACACS+ Authentication Request Detected")
+
+        elif packet[TacacsHeader].type == 2:  # Authorization
+            print(Fore.YELLOW + Style.BRIGHT + "[*] TACACS+ Authorization Request Detected")
+
+        elif header.type == 3:  # Accounting
+            print(Fore.YELLOW + Style.BRIGHT + "[*] TACACS+ Accounting Request Detected")
 
         # Mitigation
         print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use strong passwords, monitor unusual activities")
 
+    # RADIUS
+    if packet.haslayer(Radius):
+        radius_codes = {
+            1: "Access-Request",
+            2: "Access-Accept",
+            3: "Access-Reject",
+            4: "Accounting-Request",
+            5: "Accounting-Response",
+            11: "Access-Challenge",
+            12: "Status-Server (experimental)",
+            13: "Status-Client (experimental)",
+            21: "Resource-Free-Request (obsolete)",
+            22: "Resource-Free-Response (obsolete)",
+            23: "Resource-Query-Request (obsolete)",
+            24: "Resource-Query-Response (obsolete)",
+            25: "Alternate-Resource-Reclaim-Request (obsolete)",
+            26: "NAS-Reboot-Request",
+            27: "NAS-Reboot-Response",
+            29: "Next-Passcode",
+            30: "New-Pin",
+            31: "Terminate-Session",
+            32: "Password-Expired",
+            33: "Event-Request",
+            34: "Event-Response",
+            40: "Disconnect-Request",
+            41: "Disconnect-ACK",
+            42: "Disconnect-NAK",
+            43: "CoA-Request",
+            44: "CoA-ACK",
+            45: "CoA-NAK",
+            50: "IP-Address-Allocate",
+            51: "IP-Address-Release"
+        }
+
+        print(Fore.WHITE + Style.BRIGHT + '-' * 50)
+        print(Fore.WHITE + Style.BRIGHT + "[+] Detected RADIUS Packet")
+        
+        # Source IP
+        if packet.haslayer(IP):
+            print(Fore.GREEN + Style.BRIGHT + "[*] Source IP: " + Fore.WHITE + Style.BRIGHT + str(packet[IP].src))
+        elif packet.haslayer(IPv6):
+            print(Fore.GREEN + Style.BRIGHT + "[*] Source IP: " + Fore.WHITE + Style.BRIGHT + str(packet[IPv6].src))
+        
+        # RADIUS Details
+        if packet.haslayer(Radius):
+            radius_layer = packet[Radius]
+            radius_code = radius_layer.code
+            radius_id = radius_layer.id
+            radius_code_desc = radius_codes.get(radius_code, "Unknown Code")
+            print(Fore.GREEN + Style.BRIGHT + "[*] RADIUS Code: " + Fore.WHITE + Style.BRIGHT + str(radius_code) + " (" + radius_code_desc + ")")
+            print(Fore.GREEN + Style.BRIGHT + "[*] RADIUS Identifier: " + Fore.WHITE + Style.BRIGHT + str(radius_id))
+            print(Fore.GREEN + Style.BRIGHT + "[*] RADIUS Authenticator: " + Fore.WHITE + Style.BRIGHT + radius_layer.authenticator.hex())
+            # Parsing RADIUS Attributes (AV Pairs)
+            for attr in radius_layer.iterpayloads():
+                attr_name = attr.name if hasattr(attr, 'name') else f"Attribute {attr.type}"
+                attr_value = attr.fields.get("value", "Not Found")
+                print(Fore.GREEN + Style.BRIGHT + f"[*] {attr_name}: " + Fore.WHITE + Style.BRIGHT + str(attr_value))
+            # Check for User-Password Attribute
+            if packet.haslayer(RadiusAttr_User_Password):
+                encrypted_password = packet[RadiusAttr_User_Password].value
+                print(Fore.YELLOW + Style.BRIGHT + "[!] User Password (encrypted): " + Fore.WHITE + Style.BRIGHT + encrypted_password.hex())
+            else:
+                print(Fore.YELLOW + Style.BRIGHT + "[!] User Password: Not Present")
+        # Handling Vendor-Specific
+        if packet.haslayer(RadiusAttr_Vendor_Specific):
+            vendor_id = packet[RadiusAttr_Vendor_Specific].vendor_id
+            vendor_name = (
+                Fore.YELLOW + "Microsoft" + Style.RESET_ALL if vendor_id == 311 else
+                Fore.YELLOW + "Cisco" + Style.RESET_ALL if vendor_id == 9 else
+                Fore.YELLOW + "Hewlett-Packard" + Style.RESET_ALL if vendor_id == 11 else
+                Fore.YELLOW + "Merit" + Style.RESET_ALL if vendor_id == 18 else
+                Fore.YELLOW + "Juniper" + Style.RESET_ALL if vendor_id == 14179 else
+                Fore.YELLOW + f"Unknown Vendor (ID: {vendor_id})" + Style.RESET_ALL
+            )
+            
+            vendor_data = packet[RadiusAttr_Vendor_Specific].value
+            print(Fore.GREEN + Style.BRIGHT + "[*] Vendor-Specific Information:")
+            print(Fore.GREEN + Style.BRIGHT + f"      Vendor Name: {vendor_name}")
+            print(Fore.GREEN + Style.BRIGHT + f"      Data: {vendor_data.hex() if isinstance(vendor_data, bytes) else vendor_data}")
+        # Mitigation
+        print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Use strong passwords, monitor unusual activities")
+
+
+
+
+    # SNMP
+    if packet.haslayer(UDP) and packet[UDP].dport == 161:
+        print(Fore.WHITE + Style.BRIGHT + '-' * 50)
+        print(Fore.WHITE + Style.BRIGHT + "[+] Detected SNMP Packet")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Information Gathering")
+        print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "snmpwalk, snmpget, snmp_enum, onesixtyone")
+
+        if packet.haslayer(IP):
+            ip_src = packet[IP].src
+            ip_dst = packet[IP].dst
+            print(Fore.GREEN + Style.BRIGHT + "[*] Source IP: " + Fore.WHITE + Style.BRIGHT + f"{ip_src}")
+            print(Fore.GREEN + Style.BRIGHT + "[*] Destination IP: " + Fore.WHITE + Style.BRIGHT + f"{ip_dst}")
+
+        # Checking for SNMP community string
+        if packet.haslayer(SNMP):
+            community_string = str(packet[SNMP].community)
+            print(Fore.GREEN + Style.BRIGHT + "[*] SNMP Community String: " + Fore.WHITE + Style.BRIGHT + f"{community_string}")
+            
+            # Warning for default community strings
+            if community_string.lower() in ["public", "private"]:
+                print(Fore.YELLOW + Style.BRIGHT + "[!] Warning: Default SNMP community string used ('public' or 'private'). This is a security risk!")
+
+        # Mitigation
+        print(Fore.CYAN + Style.BRIGHT + "[*] Mitigation: " + Fore.WHITE + Style.BRIGHT + "Restrict SNMP access, use strong community strings, monitor SNMP traffic")
 
 # list for packets processing
 packets = []
 
-# Passive ARP
+# Passive ARP #
+arp_table = defaultdict(lambda: {"mac": "", "type": ""})
+
+# write ips and macs to file
+def save_to_file_passive_arp(file_name="above_passive_arp.txt"):
+    # write file
+    with open(file_name, "w") as file:
+        # timestamps
+        file.write("Above: Passive ARP Host Discovery\n")
+        file.write(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        file.write("-" * 50 + "\n")
+        
+        # write ips and macs
+        for ip, info in arp_table.items():
+            file.write(f"{ip} - {info['mac']}\n")
+
+# ARP Frames Sniffing
 def passive_arp_monitor(packet):
+    # Displaying Table
+    def display_arp_table():
+        print("\033c", end="")
+        # Table Header
+        print(Fore.WHITE + Style.BRIGHT + "+" + "-" * 20 + "+" + "-" * 30 + "+" + "-" * 20 + "+")
+        print(f"|{'IP Address':<20}|{'MAC Address':<30}|{'ARP Type':<20}|")
+        print(Fore.WHITE + Style.BRIGHT + "+" + "-" * 20 + "+" + "-" * 30 + "+" + "-" * 20 + "+")
+        
+        for ip, info in arp_table.items():
+            mac = info["mac"]
+            arp_type = info["type"]
+            print(f"|{ip:<20}|{mac:<30}|{arp_type:<20}|")
+        
+        # Bottom
+        print(Fore.WHITE + Style.BRIGHT + "+" + "-" * 20 + "+" + "-" * 30 + "+" + "-" * 20 + "+")
+
     if packet.haslayer(ARP):
-        arp_op = packet[ARP].op
-        op_type = "Request" if arp_op == 1 else "Reply" if arp_op == 2 else "Unknown"
-        print(Fore.WHITE + Style.BRIGHT + '-' * 50)
-        print(Fore.WHITE + Style.BRIGHT + f"[+] Detected ARP {op_type}")
-        print(Fore.YELLOW + Style.BRIGHT + f"[*] ARP {op_type} for IP: " + Fore.WHITE + Style.BRIGHT + packet[ARP].psrc)
-        print(Fore.YELLOW + Style.BRIGHT + f"[*] MAC Address: " + Fore.WHITE + Style.BRIGHT + packet[ARP].hwsrc)
+        ip_address = packet[ARP].psrc
+        mac_address = packet[ARP].hwsrc
+        
+        # types of ARP frames
+        if packet[ARP].op == 1:
+            arp_type = "ARP Request"
+        elif packet[ARP].op == 2:
+            arp_type = "ARP Response"
+        else:
+            arp_type = "Unknown"
+        
+        # dict update
+        arp_table[ip_address] = {"mac": mac_address, "type": arp_type}
+        # info update
+        display_arp_table()
+        # save to text file
+        save_to_file_passive_arp()
+
+# Dict for VLAN ID
+vlan_table = defaultdict(int)
+
+# Search VLAN ID (802.1Q)
+def search_vlan(packet):
+    if packet.haslayer(Dot1Q):
+        vlan_id = packet[Dot1Q].vlan
+        vlan_table[vlan_id] += 1
+        display_vlan_table()
+
+# Record VLAN ID's to file "above_discovered_vlan.txt"
+def save_vlan_to_file_vlan_id(file_name="above_discovered_vlan.txt"):
+    with open(file_name, "w") as file:
+        # Header
+        file.write("Above: Discovered VLAN ID\n")
+        file.write(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        file.write("-" * 80 + "\n")
+        file.write(f"{'VLAN ID':<30}{'Frames Count':<15}{'How to Jump':<40}\n")
+        file.write("-" * 80 + "\n")
+        # writing data
+        for vlan_id, count in vlan_table.items():
+            jump_command = f"sudo vconfig add eth0 {vlan_id}"
+            file.write(f"{vlan_id:<30}{count:<15}{jump_command:<40}\n")
+        
+        file.write("-" * 80 + "\n")
+
+# VLAN ID Table Display
+def display_vlan_table():
+    print("\033c", end="")
+    print(Fore.WHITE + Style.BRIGHT + "+" + "-" * 30 + "+" + "-" * 15 + "+" + "-" * 40 + "+")
+    print(f"|{'VLAN ID':<30}|{'Frames Count':<15}|{'How to Jump':<40}|")
+    print(Fore.WHITE + Style.BRIGHT + "+" + "-" * 30 + "+" + "-" * 15 + "+" + "-" * 40 + "+")
+    
+    for vlan_id, count in vlan_table.items():
+        jump_command = f"sudo vconfig add eth0 {vlan_id}"
+        print(f"|{vlan_id:<30}|{count:<15}|{jump_command:<40}|")
+    
+    print(Fore.WHITE + Style.BRIGHT + "+" + "-" * 30 + "+" + "-" * 15 + "+" + "-" * 40 + "+")
+    save_vlan_to_file_vlan_id()
+
+# Parse VLAN ID from pcaps
+def analyze_pcap_for_vlan(pcap_path):
+    packets = rdpcap(pcap_path)
+    for packet in packets:
+        search_vlan(packet)
+    display_vlan_table() 
+
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--interface', type=str, required=False, help='Interface for traffic listening')
-    parser.add_argument('--timer', type=int, help='Time in seconds to capture packets, if not set capture runs indefinitely')
-    parser.add_argument('--output', type=str, help='File name where the traffic will be recorded')
+    parser.add_argument('--timer', type=int, help='Time in seconds to capture packets, default: not set')
+    parser.add_argument('--output', type=str, help='File name where the traffic will be recorded, default: not set')
     parser.add_argument('--input', type=str, help='File name of the traffic dump')
     parser.add_argument('--passive-arp', action='store_true', help='Passive ARP (Host Discovery)')
+    parser.add_argument('--search-vlan', action='store_true', help='VLAN Search')
     args = parser.parse_args()
 
     def signal_handler(sig, frame):
@@ -800,23 +977,37 @@ def main():
             except Exception as e:
                 print(Fore.RED + Style.BRIGHT + f"Error saving packets to {args.output}: {e}")
         sys.exit(0)
-
         
     signal.signal(signal.SIGINT, signal_handler)
 
+    if args.output and (args.passive_arp or args.search_vlan):
+        print(Fore.RED + "[!] The '--output' argument cannot be used with '--passive-arp' or '--search-vlan'")
+        return
+    if args.passive_arp and args.input:
+        print(Fore.RED + "[!] The '--passive-arp' argument cannot be used with '--input'")
+        return
     if not any(vars(args).values()):
-        print("[!] Use --help to work with the tool")
+        print("[*] Use --help to learn how to work the sniffer")
         return
     if args.input:
-        print("[+] Analyzing pcap file...\n")
-        analyze_pcap(args.input)
+        if args.search_vlan:
+            print("[+] Analyzing pcap file for VLAN tags...\n")
+            analyze_pcap_for_vlan(args.input)
+        else:
+            print("[+] Analyzing pcap file...\n")
+            analyze_pcap(args.input)
         return
     if os.getuid() != 0:
         print("[!] Sniffing traffic requires root privileges. Please run as root.")
         return
     if args.passive_arp:
-        print("[+] Host discovery using Passive ARP\n")
+        print("[+] Starting Host Discovery...")
+        print(Fore.CYAN + "[*] IP and MAC addresses will be saved to 'above_passive_arp.txt'")
         sniff(iface=args.interface, timeout=args.timer, prn=passive_arp_monitor, store=0)
+    elif args.search_vlan:
+        print("[+] Searching for VLAN tags...")
+        sniff(iface=args.interface, timeout=args.timer, prn=search_vlan, store=0)
+        display_vlan_table()
     elif args.interface:
         print("-----------------------------------------------------------------------------------------")
         print("[+] Start sniffing...\n")

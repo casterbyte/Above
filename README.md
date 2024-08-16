@@ -10,8 +10,8 @@ Designed for pentesters and security engineers
 
 Author: Magama Bazarov, <caster@exploit.org>
 Pseudonym: Caster
-Version: 2.6
-Codename: Introvert
+Version: 2.7
+Codename: Adagio for Strings
 ```
 
 # Disclaimer
@@ -26,24 +26,24 @@ Codename: Introvert
 
 Above is a invisible network sniffer for finding vulnerabilities in network equipment. It is based entirely on network traffic analysis, so it does not make any noise on the air. He's invisible. Completely based on the Scapy library.
 
-> Above allows pentesters to automate the process of finding vulnerabilities in network hardware. Discovery protocols, dynamic routing, 802.1Q, ICS Protocols, FHRP, STP, LLMNR/NBT-NS, etc.
+> Above allows pentesters to automate the process of finding vulnerabilities in network hardware. Discovery protocols, dynamic routing, 802.1Q, Resolution protocols, ICS, FHRP, STP, LLMNR/NBT-NS, etc.
 
 ## Supported protocols
 
-Detects up to 27 protocols:
+Detects up to 29 protocols:
 
 ```
 MACSec (802.1X AE)
 EAPOL (Checking 802.1X versions)
-ARP (Passive ARP, Host Discovery)
+ARP (Host Discovery)
 CDP (Cisco Discovery Protocol)
 DTP (Dynamic Trunking Protocol)
 LLDP (Link Layer Discovery Protocol) 
-802.1Q Tags (VLAN)
-S7COMM (Siemens)
-OMRON
+VLAN (802.1Q)
+S7COMM (Siemens) (SCADA)
+OMRON (SCADA)
 TACACS+ (Terminal Access Controller Access Control System Plus)
-ModbusTCP
+ModbusTCP (SCADA)
 STP (Spanning Tree Protocol)
 OSPF (Open Shortest Path First)
 EIGRP (Enhanced Interior Gateway Routing Protocol)
@@ -60,6 +60,8 @@ DHCPv6 (Dynamic Host Configuration Protocol v6)
 ICMPv6 (Internet Control Message Protocol v6)
 SSDP (Simple Service Discovery Protocol)
 MNDP (MikroTik Neighbor Discovery Protocol)
+SNMP (Simple Network Management Protocol)
+RADIUS (Remote Authentication Dial-In User Service)
 ```
 ## Operating Mechanism
 
@@ -75,18 +77,20 @@ The tool is very simple in its operation and is driven by arguments:
 - Input: The tool takes an already prepared `.pcap` as input and looks for protocols in it
 - Output: Above will record the listened traffic to `.pcap` file, its name you specify yourself
 - Passive ARP: Detecting hosts in a segment using Passive ARP
+- VLAN Search: Search for VLAN segments by extracting VLAN IDs in traffic
 
 ```
-usage: above.py [-h] [--interface INTERFACE] [--timer TIMER] [--output OUTPUT] [--input INPUT] [--passive-arp]
+usage: above.py [-h] [--interface INTERFACE] [--timer TIMER] [--output OUTPUT] [--input INPUT] [--passive-arp] [--search-vlan]
 
 options:
   -h, --help            show this help message and exit
   --interface INTERFACE
                         Interface for traffic listening
-  --timer TIMER         Time in seconds to capture packets, if not set capture runs indefinitely
-  --output OUTPUT       File name where the traffic will be recorded
+  --timer TIMER         Time in seconds to capture packets, default: not set
+  --output OUTPUT       File name where the traffic will be recorded, default: not set
   --input INPUT         File name of the traffic dump
   --passive-arp         Passive ARP (Host Discovery)
+  --search-vlan         VLAN Search
 ```
 
 ---
@@ -121,9 +125,9 @@ Or...
 
 ```bash
 caster@kali:~$ sudo apt-get install python3-scapy python3-colorama python3-setuptools
-caster@kali:~$ git clone https://github.com/casterbyte/Above
-caster@kali:~$ cd Above/
-caster@kali:~/Above$ sudo python3 setup.py install
+caster@kali:~$ git clone https://github.com/casterbyte/above
+caster@kali:~$ cd above/
+caster@kali:~/above$ sudo python3 setup.py install
 ```
 
 ### macOS:
@@ -134,8 +138,8 @@ brew install python3
 sudo pip3 install scapy colorama setuptools
 
 # Clone the repo
-git clone https://github.com/casterbyte/Above
-cd Above/
+git clone https://github.com/casterbyte/above
+cd above/
 sudo python3 setup.py install
 ```
 
@@ -156,7 +160,6 @@ caster@kali:~$ sudo above --interface eth0 --timer 120
 ```
 > To stop traffic sniffing, press CTRL + С
 >
-> WARNING! Above is not designed to work with tunnel interfaces (L3) due to the use of filters for L2 protocols. Tool on tunneled L3 interfaces may not work properly.
 
 Example:
 
@@ -232,27 +235,100 @@ caster@kali:~$ sudo above --input ospf-md5.cap
 [*] Mitigation: Enable passive interfaces, use authentication
 ```
 
-
-
 # Passive ARP
 
-The tool can detect hosts without noise in the air by processing ARP frames in passive mode
+This can be very useful if an attacker doesn't want to make noise on the air with ARP scans and quietly discover hosts. This function is run with `--passive-arp` and all hosts found will be written to the `above_passive_arp.txt` file.
 
 ```bash
-caster@kali:~$ sudo above --interface eth0 --passive-arp --timer 10
+caster@kali:~$ sudo above --interface eth0 --passive-arp
 
-[+] Host discovery using Passive ARP
+[+] Starting Host Discovery...
+[*] IP and MAC addresses will be saved to 'above_passive_arp.txt'
 
---------------------------------------------------
-[+] Detected ARP Reply
-[*] ARP Reply for IP: 192.168.1.88
-[*] MAC Address: 00:00:0c:07:ac:c8
---------------------------------------------------
-[+] Detected ARP Reply
-[*] ARP Reply for IP: 192.168.1.40
-[*] MAC Address: 00:0c:29:c5:82:81
---------------------------------------------------
 ```
+
+> If you want, you can specify a timer for how long to listen to ARP frames to find hosts. By default, no timer is set.
+
+Once started, the terminal will be completely cleared and a table consisting of a mapping of IP Address and MAC Address will be displayed:
+
+```bash
++--------------------+------------------------------+--------------------+
+| IP Address         | MAC Address                   | ARP Type           |
++--------------------+------------------------------+--------------------+
+| 172.16.120.12      | f0:27:65:ba:1c:42             | ARP Response       |
+| 172.16.120.45      | 6d:9f:84:2b:33:ea             | ARP Request        |
+| 172.16.120.78      | 3a:7c:19:d8:4e:21             | ARP Response       |
+| 172.16.120.103     | c4:12:76:ae:50:bb             | ARP Request        |
+| 172.16.120.127     | 89:3b:df:92:6a:54             | ARP Response       |
+| 172.16.120.156     | b7:5d:49:cb:72:99             | ARP Request        |
+| 172.16.120.189     | 1e:47:ac:3d:15:f8             | ARP Response       |
+| 172.16.120.222     | 43:9a:df:e0:84:3c             | ARP Request        |
++--------------------+------------------------------+--------------------+
+
+```
+
+The contents of the `above_passive_arp.txt` file will look like this:
+
+```bash
+caster@kali:~$ cat above_passive_arp.txt 
+Above: Passive ARP Host Discovery
+Time: 2024-08-16 17:30:16
+--------------------------------------------------
+172.16.120.12 - f0:27:65:ba:1c:42
+172.16.120.45 - 6d:9f:84:2b:33:ea
+172.16.120.78 - 3a:7c:19:d8:4e:21
+172.16.120.103 - c4:12:76:ae:50:bb
+172.16.120.127 - 89:3b:df:92:6a:54
+172.16.120.156 - b7:5d:49:cb:72:99
+172.16.120.189 - 1e:47:ac:3d:15:f8
+172.16.120.222 - 43:9a:df:e0:84:3c
+```
+
+This is how Above with ARP frame learning can help discover hosts in a segment without noise in the air.
+
+# VLAN Segments Search
+
+Above can also find VLAN IDs in traffic. This is a useful option if the attacker is on a trunk port under some circumstances during the pentest. And the problem is that on a trunk port, all traffic is tagged with 802.1Q tags belonging to VLAN segments. Above can extract all VLAN IDs from the air or from a traffic dump:
+
+```bash
+caster@kali:~$ sudo above --interface eth0 --search-vlan 
+```
+
+When you run this function, the terminal will also be cleared and a table will be displayed and updated:
+
+```bash
++------------------------------+---------------+----------------------------------------+
+|VLAN ID                       |Frames Count   |How to Jump                             |
++------------------------------+---------------+----------------------------------------+
+|120                           |8              |sudo vconfig add eth0 120               |
+|80                            |8              |sudo vconfig add eth0 80                |
+|251                           |7              |sudo vconfig add eth0 251               |
+|190                           |6              |sudo vconfig add eth0 190               |
++------------------------------+---------------+----------------------------------------+
+```
+
+Also, the result of this function will be written to the `above_discovered_vlan.txt` file:
+
+```bash
+caster@kali:~$ cat above_discovered_vlan.txt
+Above: Discovered VLAN ID
+Time: 2024-08-16 17:41:19
+--------------------------------------------------------------------------------
+VLAN ID                       Frames Count   How to Jump                             
+--------------------------------------------------------------------------------
+1                             208            sudo vconfig add eth0 1                 
+5                             972            sudo vconfig add eth0 5                 
+6                             904            sudo vconfig add eth0 6                 
+10                            20             sudo vconfig add eth0 10                
+12                            20             sudo vconfig add eth0 12                
+13                            20             sudo vconfig add eth0 13                
+11                            20             sudo vconfig add eth0 11                
+2000                          1              sudo vconfig add eth0 2000              
+1000                          2              sudo vconfig add eth0 1000              
+--------------------------------------------------------------------------------
+```
+
+This is how you can find information about VLAN segments based on traffic operations alone. But it is worth considering that this is a specific scenario, it is not often that an attacker will be on a trunk port. Either he will be lucky with DTP or he will stumble upon a switch port forgotten by the administrator.
 
 # Outro
 
