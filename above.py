@@ -570,7 +570,7 @@ def packet_detection(packet):
 
 
     # MNDP
-    if packet.haslayer(UDP) and packet[UDP].dport == 5678:
+    if packet.haslayer(UDP) and packet[UDP].sport == 5678 and packet[UDP].dport == 5678:
         print(Fore.WHITE + Style.BRIGHT + '-' * 50)
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected MNDP Packet")
         print(Fore.WHITE + Style.BRIGHT + "[*] MikroTik device may have been detected")
