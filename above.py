@@ -70,7 +70,7 @@ def packet_detection(packet):
         or packet.haslayer(BGPOpen) or packet.haslayer(BGPHeader) or packet.haslayer(Dot1Q) or packet.haslayer(Dot3) \
         or packet.haslayer(BOOTP) or packet.haslayer(DHCP) or packet.haslayer(IGMP) or packet.haslayer(ICMPv6ND_RS) \
         or packet.haslayer(ARP) or packet.haslayer(IPv6) or packet.haslayer(Radius) \
-        and packet[UDP].dport in [137, 161, 5353, 5355, 3222, 546, 547, 1900, 9600] or (packet.haslayer(TCP) and packet[TCP].dport == 102)):
+        and packet[UDP].dport in [137, 161, 5353, 5355, 5678, 3222, 546, 547, 1900, 9600] or (packet.haslayer(TCP) and packet[TCP].dport == 102)):
         packets.append(packet)
 
     # MACSec
