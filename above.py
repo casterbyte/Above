@@ -576,6 +576,7 @@ def packet_detection(packet):
         print(Fore.WHITE + Style.BRIGHT + "[*] MikroTik device may have been detected")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Information Gathering")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "Wireshark")
+        packets.append(packet)
 
         if packet.haslayer(IP):
             speaker_ip = str(packet[IP].src)
@@ -606,6 +607,7 @@ def packet_detection(packet):
         print(Fore.WHITE + Style.BRIGHT + "[+] Detected DHCPv6 Packet")
         print(Fore.GREEN + Style.BRIGHT + "[*] Attack Impact: " + Fore.YELLOW + Style.BRIGHT + "Potential DNS IPv6 Spoofing")
         print(Fore.GREEN + Style.BRIGHT + "[*] Tools: " + Fore.WHITE + Style.BRIGHT + "mitm6")
+        packets.append(packet)
         
         if packet.haslayer(Ether):
             mac_src = packet[Ether].src
