@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="above",
-    version="2.7",
+    version="2.8",
     url="https://github.com/casterbyte/above",
     author="Magama Bazarov",
     author_email="caster@exploit.org",
@@ -17,8 +17,10 @@ setup(
         'scapy',
         'colorama',
     ],
+    py_modules=['above_oui_dict'],
     entry_points={
         "console_scripts": ["above = above:main"],
     },
     python_requires='>=3.11',
+    include_package_data=True,
 )

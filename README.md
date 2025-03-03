@@ -1,4 +1,4 @@
-# Above (A new version is on the way)
+# Above
 
 Invisible protocol sniffer for finding vulnerabilities in the network. Designed for pentesters and security engineers.
 
@@ -10,8 +10,8 @@ Designed for pentesters and security engineers
 
 Author: Magama Bazarov, <caster@exploit.org>
 Pseudonym: Caster
-Version: 2.7
-Codename: Adagio for Strings
+Version: 2.8
+Codename: Rubens Barrichello
 ```
 
 # Disclaimer
@@ -30,7 +30,7 @@ Above is a invisible network sniffer for finding vulnerabilities in network equi
 
 ## Supported protocols
 
-Detects up to 29 protocols:
+Detects up to 28 protocols:
 
 ```
 MACSec (802.1X AE)
@@ -61,7 +61,6 @@ ICMPv6 (Internet Control Message Protocol v6)
 SSDP (Simple Service Discovery Protocol)
 MNDP (MikroTik Neighbor Discovery Protocol)
 SNMP (Simple Network Management Protocol)
-RADIUS (Remote Authentication Dial-In User Service)
 ```
 ## Operating Mechanism
 
@@ -121,13 +120,13 @@ You can install Above directly from the Kali Linux repositories
 caster@kali:~$ sudo apt update && sudo apt install above
 ```
 
-Or...
+Or:
 
 ```bash
-caster@kali:~$ sudo apt-get install python3-scapy python3-colorama python3-setuptools
-caster@kali:~$ git clone https://github.com/casterbyte/above
-caster@kali:~$ cd above/
-caster@kali:~/above$ sudo python3 setup.py install
+:~$ sudo apt-get install python3-scapy python3-colorama python3-setuptools
+:~$ git clone https://github.com/casterbyte/above
+:~$ cd above/
+:~/above$ sudo python3 setup.py install
 ```
 
 ### macOS:
@@ -165,28 +164,49 @@ Example:
 
 ```bash
 caster@kali:~$ sudo above --interface eth0 --timer 120
+                                             
+      ___  _                    
+     / _ \| |                   
+    / /_\ \ |__   _____   _____ 
+    |  _  | '_ \ / _ \ \ / / _ \
+    | | | | |_) | (_) \ V /  __/
+    \_| |_/_.__/ \___/ \_/ \___|
+    
+    Invisible network protocol sniffer. Designed for security engineers
 
+    Author: Magama Bazarov, <caster@exploit.org>
+    Alias: Caster
+    Version: 2.8
+    Codename: Rubens Barrichello
+
+    [!] Above does NOT perform MITM or credential capture. Passive analysis only
+    [!] Unauthorized use in third-party networks may violate local laws
+    [!] The developer assumes NO liability for improper or illegal use
+
+    [*] OUI Database Loaded. Entries: 36858
 -----------------------------------------------------------------------------------------
 [+] Start sniffing...
 
 [*] After the protocol is detected - all necessary information about it will be displayed
---------------------------------------------------
-[+] Detected SSDP Packet
-[*] Attack Impact: Potential for UPnP Device Exploitation
-[*] Tools: evil-ssdp
-[*] SSDP Source IP: 192.168.0.251
-[*] SSDP Source MAC: 02:10:de:64:f2:34
-[*] Mitigation: Ensure UPnP is disabled on all devices unless absolutely necessary, monitor UPnP traffic
---------------------------------------------------
+==============================
+[+] Detected STP Frame
+[*] Attack Impact: Partial MITM
+[*] Tools: Yersinia, Scapy
+[*] STP Root Switch MAC: 78:9a:18:4d:55:63
+[*] STP Root ID: 32768
+[*] STP Root Path Cost: 0
+[*] Mitigation: Enable BPDU Guard
+[*] Vendor: Routerboard.com
+==============================
 [+] Detected MDNS Packet
 [*] Attack Impact: MDNS Spoofing, Credentials Interception
 [*] Tools: Responder
 [*] MDNS Spoofing works specifically against Windows machines
 [*] You cannot get NetNTLMv2-SSP from Apple devices
-[*] MDNS Speaker IP: fe80::183f:301c:27bd:543
+[*] MDNS Speaker IP: 10.10.100.252
 [*] MDNS Speaker MAC: 02:10:de:64:f2:34
-[*] Mitigation: Filter MDNS traffic. Be careful with MDNS filtering
---------------------------------------------------
+[*] Mitigation: Monitor mDNS traffic, this protocol can't just be turned off
+[*] Vendor: Unknown Vendor
 ```
 
 If you need to record the sniffed traffic, use the `--output` argument
@@ -207,32 +227,29 @@ caster@kali:~$ above --input ospf-md5.cap
 Example:
 
 ```bash
-caster@kali:~$ sudo above --input ospf-md5.cap
+caster@kali:~$ sudo above --input dopamine.cap
 
+[*] OUI Database Loaded. Entries: 36858
 [+] Analyzing pcap file...
 
---------------------------------------------------
-[+] Detected OSPF Packet
-[+] Attack Impact: Subnets Discovery, Blackhole, Evil Twin
-[*] Tools: Loki, Scapy, FRRouting
-[*] OSPF Area ID: 0.0.0.0
-[*] OSPF Neighbor IP: 10.0.0.1
-[*] OSPF Neighbor MAC: 00:0c:29:dd:4c:54
-[!] Authentication: MD5
-[*] Tools for bruteforce: Ettercap, John the Ripper
-[*] OSPF Key ID: 1
-[*] Mitigation: Enable passive interfaces, use authentication
---------------------------------------------------
-[+] Detected OSPF Packet
-[+] Attack Impact: Subnets Discovery, Blackhole, Evil Twin
-[*] Tools: Loki, Scapy, FRRouting
-[*] OSPF Area ID: 0.0.0.0
-[*] OSPF Neighbor IP: 192.168.0.2
-[*] OSPF Neighbor MAC: 00:0c:29:43:7b:fb
-[!] Authentication: MD5
-[*] Tools for bruteforce: Ettercap, John the Ripper
-[*] OSPF Key ID: 1
-[*] Mitigation: Enable passive interfaces, use authentication
+==============================
+[+] Detected DHCP Discovery
+[*] DHCP Discovery can lead to unauthorized network configuration
+[*] DHCP Client IP: 0.0.0.0 (Broadcast)
+[*] DHCP Speaker MAC: 00:11:5a:c6:1f:ea
+[*] Mitigation: Use DHCP Snooping
+[*] Vendor: Ivoclar Vivadent AG
+==============================
+[+] Detected HSRPv2 Packet
+[*] Attack Impact: MITM
+[*] Tools: Loki
+[!] HSRPv2 has not yet been implemented in Scapy
+[!] Check priority and state manually using Wireshark
+[!] If the Active Router priority is less than 255 and you were able to break MD5 authentication, you can do a MITM
+[*] HSRPv2 Speaker MAC: 00:00:0c:9f:f0:01
+[*] HSRPv2 Speaker IP: 10.0.0.10
+[*] Mitigation: Priority 255, Authentication, Extended ACL
+[*] Vendor: Cisco Systems
 ```
 
 # Passive ARP
@@ -244,7 +261,6 @@ caster@kali:~$ sudo above --interface eth0 --passive-arp
 
 [+] Starting Host Discovery...
 [*] IP and MAC addresses will be saved to 'above_passive_arp.txt'
-
 ```
 
 > If you want, you can specify a timer for how long to listen to ARP frames to find hosts. By default, no timer is set.
@@ -330,10 +346,18 @@ VLAN ID                       Frames Count   How to Jump
 
 This is how you can find information about VLAN segments based on traffic operations alone. But it is worth considering that this is a specific scenario, it is not often that an attacker will be on a trunk port. Either he will be lucky with DTP or he will stumble upon a switch port forgotten by the administrator.
 
+# MAC Lookup
+
+As of version 2.8 Above is now able to identify the vendor by MAC address, specifically by the first 24 bits. This is done by using a [downloaded database](https://standards-oui.ieee.org/), then converting it into the `above_oui_dict.py` module, which is a dictionary consisting of unique OUIs and vendor names.
+
+# Copyright
+
+Copyright (c) 2025 Magama Bazarov. This project is licensed under the Apache 2.0 License
+
 # Outro
 
 I wrote this tool because of the track "A View From Above (Remix)" by KOAN Sound.
-This track was everything to me when I was working on this sniffer.
+This track was everything to me when I was working on this tool.
 
 ---
 
