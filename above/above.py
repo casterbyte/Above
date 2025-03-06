@@ -29,7 +29,7 @@ import sys
 from collections import defaultdict
 from datetime import datetime
 from scapy.layers.snmp import SNMP
-from above_oui_dict import above_oui
+from above.above_oui_dict import above_oui
 
 # For colors (colorama)
 init(autoreset=True)
