@@ -1,6 +1,6 @@
 # Above
 
-Invisible protocol sniffer for finding vulnerabilities in the network. Designed for pentesters and security engineers.
+Network securiry sniffer for finding vulnerabilities in the network. Designed for pentesters and security engineers.
 
 ![](/banner/banner.png)
 
