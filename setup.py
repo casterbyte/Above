@@ -8,7 +8,7 @@ setup(
     author_email="caster@exploit.org",
     scripts=['above.py'],
     description="Invisible Network Protocol Sniffer",
-    long_description=open('README.md').read(),
+    long_description=open('README.md', encoding="utf8").read(),
     long_description_content_type='text/markdown',
     license="Apache-2.0",
     keywords=['network security', 'network sniffer'],
