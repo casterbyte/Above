@@ -5,7 +5,7 @@ setup(
     version="2.8",
     url="https://github.com/casterbyte/above",
     author="Magama Bazarov",
-    author_email="caster@exploit.org",
+    author_email="magamabazarov@mailbox.org",
     scripts=['above.py'],
     description="Invisible Network Protocol Sniffer",
     long_description=open('README.md', encoding="utf8").read(),

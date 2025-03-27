@@ -8,7 +8,7 @@ Network securiry sniffer for finding vulnerabilities in the network. Designed fo
 Above: Invisible network protocol sniffer
 Designed for pentesters and security engineers
 
-Author: Magama Bazarov, <caster@exploit.org>
+Author: Magama Bazarov, <magamabazarov@mailbox.org>
 Pseudonym: Caster
 Version: 2.8
 Codename: Rubens Barrichello
@@ -356,7 +356,7 @@ Copyright (c) 2025 Magama Bazarov. This project is licensed under the Apache 2.0
 
 # Outro
 
-I wrote this tool because of the track "A View From Above (Remix)" by KOAN Sound.
+When I create this instrument, I am inspired by the track KOAN Sound - View From Above (VIP)
 This track was everything to me when I was working on this tool.
 
 ---
